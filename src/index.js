@@ -1,3 +1,6 @@
-module.exports = async function App(context) {
-  await context.sendText('Welcome to Bottender');
+const { router } = require("bottender/router");
+const routes = [...require("./app/controllers/itemController").routes];
+
+module.exports = async function App() {
+  return router(routes);
 };
