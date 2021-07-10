@@ -1,7 +1,7 @@
-const driverRepo = require("../repositories/driverRepository");
+const backRepo = require("../repositories/backRepository");
 
 exports.searchByName = name => {
-  return driverRepo.findByName(name, false);
+  return backRepo.findByName(name, false);
 };
 
 /**
@@ -10,5 +10,5 @@ exports.searchByName = name => {
  * @returns {Promise<object}
  */
 exports.getByName = name => {
-  return driverRepo.find(name);
+  return backRepo.find(name);
 };

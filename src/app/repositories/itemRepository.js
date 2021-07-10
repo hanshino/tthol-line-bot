@@ -18,8 +18,13 @@ exports.find = id => {
  * - note
  * @returns {Promise<Array>}
  */
-exports.findByName = (name, strict = false, filter = []) => {
+exports.findByName = (name, strict = false, filter = {}) => {
   let query = item().select("*");
   query = strict ? query.where("name", "=", name) : query.where("name", "like", `%${name}%`);
+
+  if (filter.type) {
+    query.where("type", "=", filter.type);
+  }
+
   return query;
 };

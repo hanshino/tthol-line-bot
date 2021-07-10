@@ -3,11 +3,21 @@ const { Context } = require("bottender");
 const { text } = require("bottender/router");
 const itemService = require("../services/itemService");
 const itemTemplate = require("../templates/item/itemTemplate");
+const driverSerivce = require("../services/driverService");
+const backService = require("../services/backService");
+const mediaList = ["背飾", "座騎"];
+const skipKeys = ["id", "name", "note", "type", "picture", "summary"];
 
 // 一定要 `exports` 此變數
 exports.routes = [
-  text(/^.?(item|物品)\s(?<item>\d+)$/, searchItemId),
-  text(/^.?(item|物品)\s(?<item>\S+)$/, searchItem),
+  text(/^.?(item|物品?)\s(?<item>\d+)$/, searchItemId),
+  text(/^.?(item|物品?)\s(?<item>\S+)$/, searchItem),
+  text(/^.?(driver|[座坐]騎?)\s(?<item>\S+)$/, (context, props) =>
+    searchItem(context, { ...props, type: "座騎" })
+  ),
+  text(/^.?(back|背[部飾]?)\s(?<item>\S+)$/, (context, props) =>
+    searchItem(context, { ...props, type: "背飾" })
+  ),
 ];
 
 async function searchItemId(context, props) {
@@ -20,7 +30,12 @@ async function searchItemId(context, props) {
     return context.sendText("查無此id");
   }
 
-  return showItem(context, result[0]);
+  let [target] = result;
+  if (mediaList.includes(target.type)) {
+    return showMedia(context, target);
+  }
+
+  return showItem(context, target);
 }
 
 /**
@@ -33,14 +48,15 @@ async function searchItem(context, props) {
   context.sendText(`您要查的是 ${props.match.groups.item}`);
 
   const { item } = props.match.groups;
-  const items = await itemService.getByName(item);
+  const items = await itemService.getByName(item, { type: props.type });
 
   if (items.length === 0) {
     return context.sendText("查無相對應的物品，建議只搜尋確認的字\n例如：❎迷霧縹緲 ✅霧");
   }
 
   if (items.length === 1) {
-    return context.sendText(`您要查詢的是${items[0].name}`);
+    let [target] = items;
+    return mediaList.includes(target.type) ? showMedia(context, target) : showItem(context, target);
   }
 
   let classifyItem = classify(items);
@@ -87,4 +103,38 @@ function showItem(context, item) {
     });
 
   return context.sendText(response.join("\n"));
+}
+
+/**
+ * 裝備有圖片的話，進行`flex`顯示
+ * @param {Context} context
+ * @param {Object} target
+ */
+async function showMedia(context, target) {
+  let data = await getSheetEquipData(target);
+  let src = data["新版圖片"] || data["圖片網址"];
+
+  if (!src) {
+    return showItem(context, target);
+  }
+
+  let bubbles = [itemTemplate.genImageBubble(src)];
+
+  let rows = Object.keys(target)
+    .filter(key => target[key] && !skipKeys.includes(key))
+    .map(key => itemTemplate.genAttributeRow(i18n.__(`item.${key}`), target[key]));
+
+  bubbles.push(itemTemplate.genAttributeBubble(target.name, rows));
+  context.sendFlex(target.name, { type: "carousel", contents: bubbles });
+}
+
+async function getSheetEquipData(target) {
+  switch (target.type) {
+    case "座騎":
+      return driverSerivce.getByName(target.name);
+    case "背飾":
+      return backService.getByName(target.name);
+    default:
+      return {};
+  }
 }

@@ -76,3 +76,81 @@ exports.genSearchBubble = (title, rows = []) => {
     },
   };
 };
+
+/**
+ * 產出一個純圖片的`bubble`
+ * @param {String} src 圖片網址
+ */
+exports.genImageBubble = src => {
+  return {
+    type: "bubble",
+    body: {
+      type: "box",
+      layout: "vertical",
+      contents: [
+        {
+          type: "image",
+          url: src,
+          size: "full",
+          aspectMode: "cover",
+        },
+      ],
+      paddingAll: "0px",
+    },
+  };
+};
+
+/**
+ * 產出物品屬性`row`
+ * @param {String} key  標題
+ * @param {String} value  數值
+ */
+exports.genAttributeRow = (key, value) => {
+  return {
+    type: "box",
+    layout: "horizontal",
+    contents: [
+      {
+        type: "text",
+        text: `${key}`,
+        align: "center",
+      },
+      {
+        type: "text",
+        text: `${value}`,
+        align: "center",
+      },
+    ],
+  };
+};
+
+/**
+ * 屬性`bubble`
+ * @param {String} title 標題
+ * @param {Array} rows 透過`genAttributeRow`產出的橫bar
+ */
+exports.genAttributeBubble = (title, rows) => {
+  return {
+    type: "bubble",
+    body: {
+      type: "box",
+      layout: "vertical",
+      contents: [
+        {
+          type: "text",
+          text: `${title}`,
+          size: "lg",
+          weight: "bold",
+          align: "center",
+        },
+        {
+          type: "box",
+          layout: "vertical",
+          spacing: "md",
+          paddingAll: "3px",
+          contents: rows,
+        },
+      ],
+    },
+  };
+};
