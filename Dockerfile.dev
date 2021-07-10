@@ -1,0 +1,12 @@
+FROM node:current
+
+LABEL Name="tthol Line機器人"
+LABEL description="非官方，純玩家興趣而寫的機器人"
+LABEL version="1.0.0"
+LABEL maintainer="hanshino@github"
+
+WORKDIR /application
+
+CMD [ "yarn", "dev" ]
+
+EXPOSE 5000
