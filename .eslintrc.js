@@ -2,23 +2,23 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 2018,
   },
-  extends: ['eslint:recommended', 'prettier'],
+  extends: ["eslint:recommended", "prettier"],
   env: {
     node: true,
   },
   rules: {
-    'prettier/prettier': [
-      'error',
+    "prettier/prettier": [
+      "error",
       {
-        trailingComma: 'es5',
-        singleQuote: true,
+        trailingComma: "es5",
+        singleQuote: false,
       },
     ],
   },
-  plugins: ['prettier'],
+  plugins: ["prettier"],
   overrides: [
     {
-      files: ['**/*.test.js'],
+      files: ["**/*.test.js"],
       env: {
         jest: true,
       },
