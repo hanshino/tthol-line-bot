@@ -1,16 +1,19 @@
 const { Context } = require("bottender");
 const { text } = require("bottender/router");
+const questTemplate = require("../templates/questTemplate");
 
 exports.routes = [
   text(
     /^160\s(?<sum>(15|12))\s(?<room1>.)(?<number1>[1-9])\s(?<room2>.)(?<number2>[1-9])$/,
     ForestMatrix
   ),
+  text(/^175\s(?<number>\d{1,3})$/, SevenStar),
+  text(/^180\s(?<sum>\d{2})\s(?<leak>\d{1})$/, GodQuest),
 ];
 
 /**
  * 九宮格解謎
- * @param {Context} Message
+ * @param {Context} context
  * @param {Object} props
  */
 function ForestMatrix(context, props) {
@@ -142,4 +145,156 @@ function calculate(sum, rooms) {
 function isFinish(matrix) {
   let result = matrix.find(data => data.value === -1);
   return result === undefined ? true : false;
+}
+
+/**
+ * 七星隱藏關卡解謎
+ * @param {Context} context
+ * @param {Object} props
+ */
+function SevenStar(context, props) {
+  const { number } = props.match.groups;
+  let num = parseInt(number);
+
+  try {
+    if (num > 127 || num <= 0) throw new QuestError("數字輸入錯誤，須介於 1~127");
+
+    let bins = (+num).toString(2);
+    while (bins.length < 7) {
+      bins = "0" + bins;
+    }
+
+    let numAry = ["一", "二", "三", "四", "五", "六", "七"];
+    let msg = "";
+    msg += numAry.join(" ");
+    msg += "\n==================\n";
+    msg += bins
+      .split("")
+      .map(bin => (bin === "1" ? "開" : "關"))
+      .join(" ");
+    msg += "\n==================";
+
+    context.sendText(msg);
+  } catch (e) {
+    if (!(e instanceof QuestError)) throw e;
+    context.sendText(e.message);
+  }
+}
+
+function QuestError(message) {
+  this.message = message;
+}
+
+function getAllPossible(num, leak) {
+  let result = [];
+  let numAry = Array.from(Array(10).keys()).slice(1);
+
+  let FS = numAry.filter(function (num) {
+    return num != leak;
+  });
+  let SS = numAry.filter(function (num) {
+    return num != leak;
+  });
+
+  FS.forEach(first => {
+    SS.forEach(second => {
+      let third = num - first - second;
+
+      if (first == second) return;
+      if (third > 9 || third <= 0 || third == leak || third == second || third == first) return;
+
+      result.push([first, second, third].sort());
+    });
+  });
+
+  let newAry = [];
+
+  result.sort().forEach(data => {
+    let check = data.join();
+
+    if (newAry.indexOf(check) == -1) {
+      newAry.push(check);
+    }
+  });
+
+  newAry = newAry.map(data => {
+    return data.split(",").map(str => {
+      return parseInt(str);
+    });
+  });
+
+  return newAry;
+}
+
+function getGodQuestResult(sum, leak) {
+  var possibleAry = getAllPossible(sum * 3 - 45, leak);
+  var objPossible = [];
+
+  possibleAry.forEach(triAry => {
+    for (let i = 0; i < 3; i++) {
+      let firstOne = sum - leak - triAry[i] - triAry[(i + 1) % 3];
+
+      if (firstOne > 9 || firstOne <= 0) {
+        continue;
+      }
+
+      let usedAry = triAry.slice();
+      usedAry.push(leak);
+
+      if (usedAry.indexOf(firstOne) != -1) {
+        continue;
+      }
+
+      usedAry.push(firstOne);
+
+      let availableNumAry = Array.from(Array(10).keys()).slice(1);
+
+      availableNumAry = availableNumAry.filter(function (num) {
+        return usedAry.indexOf(num) == -1;
+      });
+
+      let a = triAry[i % 3];
+      let b = triAry[(i + 1) % 3];
+      let c = triAry[(i + 2) % 3];
+
+      let bottom = sum - b - c;
+
+      let bottomResult = availableNumAry.find(function (num) {
+        return availableNumAry.indexOf(bottom - num) != -1 && bottom - num != num;
+      });
+
+      if (bottomResult == undefined || bottomResult == bottom) {
+        continue;
+      }
+
+      objPossible.push(
+        [a, leak, firstOne, b, bottomResult, bottom - bottomResult, c].concat(
+          availableNumAry.filter(function (num) {
+            return num != bottomResult && num != bottom - bottomResult;
+          })
+        )
+      );
+    }
+  });
+
+  return objPossible;
+}
+
+/**
+ * 神武禁地
+ * @param {Context} context
+ * @param {import("bottender").Props} props
+ */
+function GodQuest(context, props) {
+  const { sum, leak } = props.match.groups;
+
+  try {
+    let results = getGodQuestResult(parseInt(sum), parseInt(leak));
+    if (results.length <= 1) throw new QuestError("計算失敗！");
+
+    return context.sendFlex("計算結果", questTemplate.genGodQuestBubble(results[0]));
+  } catch (e) {
+    if (!(e instanceof QuestError)) throw e;
+    return context.sendText(e.message);
+  }
 }
