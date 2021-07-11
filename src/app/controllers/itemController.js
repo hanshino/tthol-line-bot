@@ -1,6 +1,6 @@
 const i18n = require("../../utils/i18n");
 const { Context } = require("bottender");
-const { text } = require("bottender/router");
+const { text, route } = require("bottender/router");
 const itemService = require("../services/itemService");
 const itemTemplate = require("../templates/item/itemTemplate");
 const driverSerivce = require("../services/driverService");
@@ -10,6 +10,7 @@ const skipKeys = ["id", "name", "note", "type", "picture", "summary"];
 
 // 一定要 `exports` 此變數
 exports.routes = [
+  route(isFilter, showFilter),
   text(/^.?(item|物品?)\s(?<item>\d+)$/, searchItemId),
   text(/^.?(item|物品?)\s(?<item>\S+)$/, searchItem),
   text(/^.?(driver|[座坐]騎?)\s(?<item>\S+)$/, (context, props) =>
@@ -59,9 +60,13 @@ async function searchItem(context, props) {
     return mediaList.includes(target.type) ? showMedia(context, target) : showItem(context, target);
   }
 
+  return showSearchResult(context, items);
+}
+
+function showSearchResult(context, items) {
   let classifyItem = classify(items);
   let bubbles = Object.keys(classifyItem).map(key => {
-    let rows = classifyItem[key].slice(0, 10).map(item => itemTemplate.genSearchRow(item));
+    let rows = classifyItem[key].slice(0, 15).map(item => itemTemplate.genSearchRow(item));
 
     return itemTemplate.genSearchBubble(key, rows);
   });
@@ -124,7 +129,7 @@ async function showMedia(context, target) {
     .filter(key => target[key] && !skipKeys.includes(key))
     .map(key => itemTemplate.genAttributeRow(i18n.__(`item.${key}`), target[key]));
 
-  bubbles.push(itemTemplate.genAttributeBubble(target.name, rows));
+  bubbles.push(itemTemplate.genAttributeBubble(rows));
   context.sendFlex(target.name, { type: "carousel", contents: bubbles });
 }
 
@@ -137,4 +142,53 @@ async function getSheetEquipData(target) {
     default:
       return {};
   }
+}
+
+async function showFilter(context) {
+  let items = await itemService.filterByAttributes(context.itemFilter);
+  return showSearchResult(context, items);
+}
+
+async function isFilter(context) {
+  if (!context.event.isText) return false;
+  const { text } = context.event.message;
+  let attrs = text.split(/\s+/g);
+  let type = attrs.shift();
+
+  let filterArr = [
+    { re: /^.?(driver|[座坐]騎?)$/, type: "座騎" },
+    { re: /^.?(back|背[部飾]?)$/, type: "背飾" },
+  ];
+
+  let filterType = filterArr.find(data => data.re.test(type));
+  if (!filterType) return false;
+
+  let columns = await itemService.getColumns();
+  columns = columns.map(col => ({
+    key: col,
+    note: i18n.__("item." + col),
+  }));
+
+  let attrDetail = [];
+  attrs.forEach(attr => {
+    let name = attr.replace(/\d+/, "");
+    let value = attr.replace(/\D+/, "") || "1";
+    let col = columns.find(col => col.note.indexOf(name) !== -1);
+    if (!col) return;
+
+    attrDetail.push({
+      key: col.key,
+      name: col.note,
+      value: parseInt(value),
+    });
+  });
+
+  if (attrDetail.length === 0) return false;
+
+  context.itemFilter = {
+    type: filterType.type,
+    attributes: attrDetail,
+  };
+
+  return true;
 }

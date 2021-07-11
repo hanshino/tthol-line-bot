@@ -29,7 +29,6 @@ module.exports = params => {
       try {
         return queryParser(JSON.parse(data));
       } catch (e) {
-        console.log(data);
         return null;
       }
     });

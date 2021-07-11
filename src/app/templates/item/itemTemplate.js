@@ -129,7 +129,7 @@ exports.genAttributeRow = (key, value) => {
  * @param {String} title 標題
  * @param {Array} rows 透過`genAttributeRow`產出的橫bar
  */
-exports.genAttributeBubble = (title, rows) => {
+exports.genAttributeBubble = rows => {
   return {
     type: "bubble",
     body: {
@@ -138,7 +138,7 @@ exports.genAttributeBubble = (title, rows) => {
       contents: [
         {
           type: "text",
-          text: `${title}`,
+          text: "屬性一覽",
           size: "lg",
           weight: "bold",
           align: "center",
@@ -146,7 +146,7 @@ exports.genAttributeBubble = (title, rows) => {
         {
           type: "box",
           layout: "vertical",
-          spacing: "md",
+          spacing: "sm",
           paddingAll: "3px",
           contents: rows,
         },
