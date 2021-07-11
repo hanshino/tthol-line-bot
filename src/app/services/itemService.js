@@ -7,3 +7,11 @@ exports.getById = id => {
 exports.getByName = (name, filter = {}) => {
   return itemRepo.findByName(name, false, filter);
 };
+
+exports.filterByAttributes = (filter = {}) => {
+  return itemRepo.filterByAttributes(filter);
+};
+
+exports.getColumns = () => {
+  return itemRepo.getColumns();
+};
