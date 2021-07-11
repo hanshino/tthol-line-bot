@@ -1,62 +1,30 @@
-This project was bootstrapped with
-[Bottender](https://github.com/Yoctol/bottender) init script.
+這是一份武林同萌傳的`LineBot`專案，可由`docker`直接建置一樣的環境進行開發。
 
-## Sending Feedback
+## 事前準備
 
-Always feel free to open an issue to
-[Bottender](https://github.com/Yoctol/bottender/issues) repository.
+- `node.js`
+- `git`
+- `docker (optional)` 
+- `tthol.sqlite` 此資料庫為作者自行產出，可跟我聯絡索取
 
-## Configuration
+```bash
+git clone https://github.com/hanshino/tthol-line-bot.git
+cp .env.example .env
+```
+請將`.env`填寫自己的官方帳號資訊
 
-### The `bottender.config.js` File
+## 啟動
 
-Bottender configuration file. You can use this file to provide settings for the session store and channels.
+使用`docker`
 
-### The `.env` File
-
-Bottender utilizes the [dotenv](https://www.npmjs.com/package/dotenv) package to load your environment variables when developing your app.
-
-To make the bot work, you must put required environment variables into your `.env` file.
-
-## Available Scripts
-
-In the project directory, you can run:
-
-### `npm run dev`
-
-Runs the app in development mode.<br>
-The bot will automatically reload if you make changes to the code.<br>
-By default, server runs on [http://localhost:5000](http://localhost:5000) and ngrok runs on [http://localhost:4040](http://localhost:4040).
-
-To run in [Console Mode](https://bottender.js.org/docs/en/the-basics-console-mode), provide the `--console` option:
-
-```sh
-npm run dev -- --console
-yarn dev --console
+```bash
+docker-compose build
+docker-compose up -d
 ```
 
-### `npm start`
+純使用`node.js`
 
-Runs the app in production mode.<br>
-By default, server runs on [http://localhost:5000](http://localhost:5000).
-
-To run in [Console Mode](https://bottender.js.org/docs/en/the-basics-console-mode), provide the `--console` option:
-
-```sh
-npm start -- --console
-yarn start --console
+```bash
+yarn install
+yarn start
 ```
-
-### `npm run lint`
-
-Runs the linter rules using [Eslint](https://eslint.org/).
-
-### `npm test`
-
-Runs the test cases using [Jest](https://jestjs.io/).
-
-## Learn More
-
-To learn Bottender, check out the [Bottender documentation](https://bottender.js.org/docs/en/getting-started).
-
-For more examples, see [Bottender examples](https://github.com/Yoctol/bottender/tree/master/examples).
