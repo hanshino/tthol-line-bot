@@ -4,8 +4,14 @@ exports.getById = id => {
   return itemRepo.find(id);
 };
 
-exports.getByName = (name, filter = {}) => {
-  return itemRepo.findByName(name, false, filter);
+/**
+ * 透過名字查詢裝備
+ * @param {array<String>} names
+ * @param {Object} filter
+ * @returns
+ */
+exports.getByName = (names, filter = {}) => {
+  return itemRepo.findByName(names, filter);
 };
 
 exports.filterByAttributes = (filter = {}) => {

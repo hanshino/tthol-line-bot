@@ -6,18 +6,26 @@ const itemTemplate = require("../templates/item/itemTemplate");
 const driverSerivce = require("../services/driverService");
 const backService = require("../services/backService");
 const mediaList = ["背飾", "座騎"];
-const skipKeys = ["id", "name", "note", "type", "picture", "summary"];
+const skipKeys = ["id", "name", "note", "type", "picture", "summary", "src"];
+const weighted = require("../../configs/weighted.config");
 
 // 一定要 `exports` 此變數
 exports.routes = [
   route(isFilter, showFilter),
   text(/^.?(item|物品?)\s(?<item>\d+)$/, searchItemId),
-  text(/^.?(item|物品?)\s(?<item>\S+)$/, searchItem),
-  text(/^.?(driver|[座坐]騎?)\s(?<item>\S+)$/, (context, props) =>
+  text(/^.?(item|物品?)\s/, searchItem),
+  text(/^.?(driver|[座坐]騎?)\s/, (context, props) =>
     searchItem(context, { ...props, type: "座騎" })
   ),
-  text(/^.?(back|背[部飾]?)\s(?<item>\S+)$/, (context, props) =>
+  text(/^.?(back|背[部飾]?)\s/, (context, props) =>
     searchItem(context, { ...props, type: "背飾" })
+  ),
+  text(/^.?(compare|裝備比較)\s(?<equipA>\S+)\s(?<equipB>\S+)$/, equipCompare),
+  text(/^.?(drivercompare|[坐座]騎比較)\s(?<equipA>\S+)\s(?<equipB>\S+)$/, (context, props) =>
+    equipCompare(context, { ...props, type: "座騎" })
+  ),
+  text(/^.?(backcompare|背[部飾]比較)\s(?<equipA>\S+)\s(?<equipB>\S+)$/, (context, props) =>
+    equipCompare(context, { ...props, type: "背飾" })
   ),
 ];
 
@@ -46,13 +54,13 @@ async function searchItemId(context, props) {
  * @param {import("bottender").Props} props
  */
 async function searchItem(context, props) {
-  context.sendText(`您要查的是 ${props.match.groups.item}`);
-
-  const { item } = props.match.groups;
-  const items = await itemService.getByName(item, { type: props.type });
+  const params = context.event.message.text.split(/\s+/g);
+  params.shift();
+  context.sendText(`您要查的是 ${params.join("+")}`);
+  const items = await itemService.getByName(params, { type: props.type });
 
   if (items.length === 0) {
-    return context.sendText("查無相對應的物品，建議只搜尋確認的字\n例如：❎迷霧縹緲 ✅霧");
+    return context.sendText("查無相對應的物品，建議只搜尋確認的字\n例如：極 重擊 赤");
   }
 
   if (items.length === 1) {
@@ -65,10 +73,12 @@ async function searchItem(context, props) {
 
 function showSearchResult(context, items) {
   let classifyItem = classify(items);
-  let bubbles = Object.keys(classifyItem).map(key => {
-    let rows = classifyItem[key].slice(0, 15).map(item => itemTemplate.genSearchRow(item));
-
-    return itemTemplate.genSearchBubble(key, rows);
+  let bubbles = [];
+  Object.keys(classifyItem).forEach(key => {
+    let rows = classifyItem[key].map(item => itemTemplate.genSearchRow(item));
+    for (let i = 0; i < rows.length; i += 9) {
+      bubbles.push(itemTemplate.genSearchBubble(key, rows.slice(i, i + 9)));
+    }
   });
 
   for (let i = 0; i < bubbles.length; i += 10) {
@@ -107,7 +117,7 @@ function showItem(context, item) {
       return `${i18n.__(`item.${key}`)}：${item[key]}`;
     });
 
-  return context.sendText(response.join("\n"));
+  return context.sendText(response.join("\n").replace(/\\n+/g, "\n"));
 }
 
 /**
@@ -123,11 +133,11 @@ async function showMedia(context, target) {
     return showItem(context, target);
   }
 
-  let bubbles = [itemTemplate.genImageBubble(src)];
+  let bubbles = [itemTemplate.genImageBubble(target.name, src)];
 
   let rows = Object.keys(target)
     .filter(key => target[key] && !skipKeys.includes(key))
-    .map(key => itemTemplate.genAttributeRow(i18n.__(`item.${key}`), target[key]));
+    .map(key => itemTemplate.genAttributeRow(i18n.__("item." + key), target[key]));
 
   bubbles.push(itemTemplate.genAttributeBubble(rows));
   context.sendFlex(target.name, { type: "carousel", contents: bubbles });
@@ -191,4 +201,124 @@ async function isFilter(context) {
   };
 
   return true;
+}
+
+/**
+ * 裝備比較
+ * @param {Context} context
+ * @param {import("bottender").Props} props
+ */
+async function equipCompare(context, props) {
+  const { equipA, equipB } = props.match.groups;
+  const { type } = props;
+
+  let a = await itemService.getByName([equipA], { type });
+  let b = await itemService.getByName([equipB], { type });
+
+  if (a.length > 1) {
+    context.sendText(`錯誤： \`${equipA}\` 查到${a.length}個結果`);
+  }
+  if (b.length > 1) {
+    context.sendText(`錯誤： \`${equipB}\` 查到${b.length}個結果`);
+  }
+
+  if (a.length > 1 || b.length > 1) return;
+
+  [a] = a;
+  [b] = b;
+
+  if (!type && a.type !== b.type) {
+    return context.sendText(
+      `無法比較兩種不同類型的裝備\n${equipA} 為 **${a.type}**\n${equipB} 為 **${b.type}**`
+    );
+  }
+
+  let equips = [a, b];
+  let diff = equipDiff(a, b);
+  diff[0].src = await getSheetPicture(diff[0]);
+  diff[1].src = await getSheetPicture(diff[1]);
+
+  let bubbles = [];
+
+  diff.forEach((equip, index) => {
+    if (!equip.src) return;
+
+    // 插入圖片bubble
+    bubbles.push(itemTemplate.genImageBubble(equip.name, equip.src));
+
+    // 插入比較表
+    bubbles.push(
+      itemTemplate.genCompareBubble(
+        equip.name,
+        Object.keys(equip)
+          .filter(key => !skipKeys.includes(key))
+          .map(key =>
+            itemTemplate.genCompareRow(i18n.__("item." + key), equips[index][key], equip[key])
+          )
+      )
+    );
+
+    // 插入是否更換表
+    bubbles.push(
+      itemTemplate.genWeightedBubble(
+        equips[index].name,
+        equips[(index + 1) % 2].name,
+        weighted.map(data =>
+          itemTemplate.genWeightedRow(data.type, weightedCaculate(equip, data.params))
+        )
+      )
+    );
+  });
+
+  context.sendFlex("比較結果", { type: "carousel", contents: bubbles });
+}
+
+/**
+ * 比較裝備差異
+ * @param {Object} a
+ * @param {Object} b
+ */
+function equipDiff(a, b) {
+  let skipKeys = ["id", "name", "note", "type", "summary", "level", "weight", "picture"];
+  let aAttributes = Object.keys(a);
+  let bAttributes = Object.keys(b);
+
+  let totalAttributes = [
+    ...new Set([
+      ...aAttributes.filter(key => a[key] && !skipKeys.includes(key)),
+      ...bAttributes.filter(key => b[key] && !skipKeys.includes(key)),
+    ]),
+  ].sort((a, b) => aAttributes.indexOf(a) - aAttributes.indexOf(b)); // 按照原本屬性進行排序處理
+
+  let result = [
+    { equip: a, compare: b },
+    { equip: b, compare: a },
+  ].map(data => {
+    let { equip, compare } = data;
+
+    let temp = { name: equip.name, type: equip.type };
+    totalAttributes.forEach(attr => {
+      temp[attr] = equip[attr] - compare[attr];
+    });
+
+    return temp;
+  });
+
+  return result;
+}
+
+/**
+ * 裝備差異加權計算
+ * @param {Object}  equip 裝備
+ * @param {Array<{key: String, value: number}>} 參數
+ */
+function weightedCaculate(equip, params) {
+  return params
+    .map(param => (equip[param.key] || 0) * param.value)
+    .reduce((pre, curr) => pre + curr);
+}
+
+async function getSheetPicture(target) {
+  let data = await getSheetEquipData(target);
+  return data["新版圖片"] || data["圖片網址"] || null;
 }
