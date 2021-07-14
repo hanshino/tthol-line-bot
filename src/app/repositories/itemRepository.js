@@ -12,20 +12,28 @@ exports.find = id => {
 
 /**
  * 透過名稱搜尋物品
- * @param {string} name 物品名稱
- * @param {boolean} strict 嚴謹模式，是則必須全名符合，否則部分吻合
+ * @param {array<String} names 物品名稱
  * @param {array} filter  可過濾部分資料
  * - type
  * - note
  * @returns {Promise<Array>}
  */
-exports.findByName = (name, strict = false, filter = {}) => {
+exports.findByName = (names, filter = {}) => {
   let query = item().select("*");
-  query = strict ? query.where("name", "=", name) : query.where("name", "like", `%${name}%`);
+
+  names.forEach(name => {
+    query.where("name", "like", `%${name}%`);
+  });
 
   if (filter.type) {
-    query.where("type", "=", filter.type);
+    if (typeof filter.type === "string") {
+      query.where("type", "=", filter.type);
+    } else if (Array.isArray(filter.type)) {
+      query.whereIn("type", filter.type);
+    }
   }
+
+  console.log(query.toSQL().toNative());
 
   return query;
 };
@@ -43,8 +51,14 @@ exports.filterByAttributes = filter => {
     });
   }
 
+  // 類型篩選
   if (filter.type) {
     query.where("type", "=", filter.type);
+  }
+
+  // 等級篩選
+  if (filter.level) {
+    query.where("level", ">=", filter.level);
   }
 
   return query;
