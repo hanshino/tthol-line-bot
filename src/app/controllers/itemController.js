@@ -8,24 +8,51 @@ const backService = require("../services/backService");
 const mediaList = ["背飾", "座騎"];
 const skipKeys = ["id", "name", "note", "type", "picture", "summary", "src"];
 const weighted = require("../../configs/weighted.config");
+const alias = [
+  { origin: /^.?(外功?[坐座]騎)$/, to: ".driverrank 外*11 物 技*3 命 防 護", type: "座騎" },
+  { origin: /^.?(玄學?[坐座]騎)$/, to: ".driverrank 玄*7 技*3 命 防*2 護", type: "座騎" },
+  { origin: /^.?(內力?[坐座]騎)$/, to: ".driverrank 內*7 技*3 命 防*2 護", type: "座騎" },
+  { origin: /^.?(身法?[坐座]騎)$/, to: ".driverrank 身*7 重擊*5 閃躲*3 防*2 護", type: "座騎" },
+  { origin: /^.?(外玄[坐座]騎)$/, to: ".driverrank 外*10 玄*7 物 技*3 命 防 護", type: "座騎" },
+  { origin: /^.?(玄內[坐座]騎)$/, to: ".driverrank 玄*7 內*7 技*3 命 防*2 護", type: "座騎" },
+  { origin: /^.?(外功?背[部飾])$/, to: ".backrank 外*11 物 技*3 命 防 護", type: "背飾" },
+  { origin: /^.?(玄學?背[部飾])$/, to: ".backrank 玄*7 技*3 命 防*2 護", type: "背飾" },
+  { origin: /^.?(內力?背[部飾])$/, to: ".backrank 內*7 技*3 命 防*2 護", type: "背飾" },
+  { origin: /^.?(身法?背[部飾])$/, to: ".backrank 身*7 重擊*5 閃躲*3 防*2 護", type: "背飾" },
+  { origin: /^.?(外玄背[部飾])$/, to: ".backrank 外*10 玄*7 物 技*3 命 防 護", type: "背飾" },
+  { origin: /^.?(玄內背[部飾])$/, to: ".backrank 玄*7 內*7 技*3 命 防*2 護", type: "背飾" },
+];
 
 // 一定要 `exports` 此變數
 exports.routes = [
   route(isFilter, showFilter),
+  route(isAlias, (context, props) => showRanking(context, { type: context.rankType, ...props })),
   text(/^.?(item|物品?)\s(?<item>\d+)$/, searchItemId),
   text(/^.?(item|物品?)\s/, searchItem),
+  text(/^.?(equip|裝備)\s/, (context, props) =>
+    searchItem(context, { ...props, type: ["座騎", "背飾", "左飾", "中飾", "右飾", "帽"] })
+  ),
   text(/^.?(driver|[座坐]騎?)\s/, (context, props) =>
     searchItem(context, { ...props, type: "座騎" })
   ),
   text(/^.?(back|背[部飾]?)\s/, (context, props) =>
     searchItem(context, { ...props, type: "背飾" })
   ),
+  text(/^.?(mid|中飾?)\s/, (context, props) => searchItem(context, { ...props, type: "中飾" })),
+  text(/^.?(left|左飾?)\s/, (context, props) => searchItem(context, { ...props, type: "左飾" })),
+  text(/^.?(right|右飾?)\s/, (context, props) => searchItem(context, { ...props, type: "右飾" })),
   text(/^.?(compare|裝備比較)\s(?<equipA>\S+)\s(?<equipB>\S+)$/, equipCompare),
   text(/^.?(drivercompare|[坐座]騎比較)\s(?<equipA>\S+)\s(?<equipB>\S+)$/, (context, props) =>
     equipCompare(context, { ...props, type: "座騎" })
   ),
   text(/^.?(backcompare|背[部飾]比較)\s(?<equipA>\S+)\s(?<equipB>\S+)$/, (context, props) =>
     equipCompare(context, { ...props, type: "背飾" })
+  ),
+  text(/^.?(backrank|背[部飾]排行)\s/, (context, props) =>
+    showRanking(context, { ...props, type: "背飾" })
+  ),
+  text(/^.?(driverrank|[坐座]騎排行)\s/, (context, props) =>
+    showRanking(context, { ...props, type: "座騎" })
   ),
 ];
 
@@ -126,8 +153,7 @@ function showItem(context, item) {
  * @param {Object} target
  */
 async function showMedia(context, target) {
-  let data = await getSheetEquipData(target);
-  let src = data["新版圖片"] || data["圖片網址"];
+  let src = await getSheetPicture(target);
 
   if (!src) {
     return showItem(context, target);
@@ -320,5 +346,74 @@ function weightedCaculate(equip, params) {
 
 async function getSheetPicture(target) {
   let data = await getSheetEquipData(target);
+  if (!data) return null;
   return data["新版圖片"] || data["圖片網址"] || null;
+}
+
+/**
+ * 顯示加權排行榜
+ * @param {Context} context
+ * @param {import("bottender").Props} props
+ */
+async function showRanking(context, props) {
+  let { type } = props;
+  let attrs = context.event.message.text.split(/\s+/g);
+  attrs.shift();
+  let columns = await itemService.getColumns();
+  columns = columns.map(col => ({
+    key: col,
+    note: i18n.__("item." + col),
+  }));
+
+  let attrDetail = [];
+  attrs.forEach(attr => {
+    // 不符合 XX*YY 的格式 即略過
+    if (/^\S{1,2}(\*\d{1,2})?$/.test(attr) === false) return;
+    let name = attr.replace(/[\d\*]+/, "");
+    let value = attr.replace(/\D+/, "") || "1";
+    let col = columns.find(col => col.note.indexOf(name) !== -1);
+    if (!col) return;
+
+    attrDetail.push({
+      key: col.key,
+      name: col.note,
+      value: parseInt(value),
+    });
+  });
+
+  if (attrDetail.length === 0) {
+    return context.sendText(
+      "無合法的屬性參數，以下為可以用的屬性\n" + columns.map(col => col.note).join("、")
+    );
+  }
+
+  let equips = await itemService.filterByAttributes({ type, level: 80 });
+  equips = equips
+    .map(equip => ({ ...equip, weighted: weightedCaculate(equip, attrDetail) }))
+    .filter(equip => equip.weighted !== 0)
+    .sort((a, b) => b.weighted - a.weighted);
+
+  let bubbles = [];
+  let rows = equips.slice(0, 30).map((equip, index) => itemTemplate.genRankRow(index + 1, equip));
+
+  for (let i = 0; i < rows.length; i += 10) {
+    bubbles.push(itemTemplate.genRankBubble(rows.slice(i, i + 10)));
+  }
+
+  context.sendFlex("排行計算", { type: "carousel", contents: bubbles });
+  context.sendText(`公式參考：${attrDetail.map(attr => `${attr.name}*${attr.value}`).join(" ")}`);
+}
+
+/**
+ * 看看是否為別名指令
+ * @param {Context} context
+ */
+function isAlias(context) {
+  const { text } = context.event.message;
+  let target = alias.find(alia => alia.origin.test(text));
+  if (!target) return false;
+
+  context.event.message.text = target.to;
+  context.rankType = target.type;
+  return true;
 }

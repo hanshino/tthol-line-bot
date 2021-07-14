@@ -26,8 +26,14 @@ exports.findByName = (names, filter = {}) => {
   });
 
   if (filter.type) {
-    query.where("type", "=", filter.type);
+    if (typeof filter.type === "string") {
+      query.where("type", "=", filter.type);
+    } else if (Array.isArray(filter.type)) {
+      query.whereIn("type", filter.type);
+    }
   }
+
+  console.log(query.toSQL().toNative());
 
   return query;
 };
@@ -45,8 +51,14 @@ exports.filterByAttributes = filter => {
     });
   }
 
+  // 類型篩選
   if (filter.type) {
     query.where("type", "=", filter.type);
+  }
+
+  // 等級篩選
+  if (filter.level) {
+    query.where("level", ">=", filter.level);
   }
 
   return query;

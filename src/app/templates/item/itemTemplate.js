@@ -263,6 +263,7 @@ exports.genWeightedBubble = (equipA, equipB, rows) => {
           size: "lg",
         },
       ],
+      paddingBottom: "3px",
     },
     body: {
       type: "box",
@@ -352,7 +353,7 @@ exports.genWeightedBubble = (equipA, equipB, rows) => {
                 },
                 {
                   type: "span",
-                  text: "3. 結果僅供參考",
+                  text: "3. 分數越低更換的CP值越低",
                 },
               ],
             },
@@ -371,19 +372,136 @@ exports.genWeightedRow = (type, weight) => {
     contents: [
       {
         type: "text",
-        text: `如果你是 ${type}`,
+        contents: [
+          { type: "span", text: "如果你是" },
+          { type: "span", text: " " },
+          { type: "span", text: `${type}`, size: "sm" },
+        ],
         flex: 6,
       },
       {
         type: "text",
-        text: `分數值 ${weight}`,
-        flex: 5,
+        text: "差異值",
+        size: "sm",
+        align: "center",
+        flex: 2,
+      },
+      {
+        type: "text",
+        text: `${weight}`,
+        align: "end",
+        flex: 2,
       },
       {
         type: "text",
         text: weight > 0 ? "✔️" : "❌",
+        align: "center",
         flex: 1,
       },
     ],
+  };
+};
+
+exports.genRankBubble = rows => {
+  return {
+    type: "bubble",
+    header: {
+      type: "box",
+      layout: "vertical",
+      contents: [
+        {
+          type: "text",
+          text: "排行計算",
+          weight: "bold",
+          color: "#345214",
+          align: "center",
+        },
+      ],
+      paddingBottom: "3px",
+    },
+    body: {
+      type: "box",
+      layout: "vertical",
+      contents: [
+        {
+          type: "box",
+          layout: "horizontal",
+          contents: [
+            {
+              type: "text",
+              text: "排行",
+              align: "center",
+              weight: "bold",
+              flex: 2,
+            },
+            {
+              type: "text",
+              text: "名稱",
+              align: "center",
+              weight: "bold",
+              flex: 4,
+            },
+            {
+              type: "text",
+              text: "分數",
+              align: "center",
+              weight: "bold",
+              flex: 3,
+            },
+            {
+              type: "text",
+              text: "點擊",
+              align: "center",
+              weight: "bold",
+              flex: 3,
+            },
+          ],
+        },
+        {
+          type: "separator",
+        },
+        ...rows,
+      ],
+      spacing: "sm",
+    },
+  };
+};
+
+exports.genRankRow = (rank, equip) => {
+  let { name, weighted, id } = equip;
+  return {
+    type: "box",
+    layout: "horizontal",
+    contents: [
+      {
+        type: "text",
+        text: `${rank}`,
+        align: "center",
+        size: "sm",
+        flex: 2,
+      },
+      {
+        type: "text",
+        text: `${name}`,
+        align: "center",
+        size: "sm",
+        flex: 4,
+      },
+      {
+        type: "text",
+        text: `${weighted}`,
+        align: "center",
+        size: "sm",
+        flex: 3,
+      },
+      {
+        type: "text",
+        text: "查詢",
+        align: "center",
+        size: "sm",
+        flex: 3,
+      },
+    ],
+    action: { type: "message", text: `.item ${id}` },
   };
 };
