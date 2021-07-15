@@ -13,6 +13,7 @@ exports.genMagicBubble = (title, level, rows) => {
           align: "center",
         },
       ],
+      paddingBottom: "3px",
     },
     body: {
       type: "box",
@@ -37,7 +38,7 @@ exports.genAttributeRow = (title, value) => {
         type: "text",
         text: `${title}`,
         flex: 5,
-        size: "xs",
+        size: "sm",
         weight: "bold",
       },
       {
@@ -45,7 +46,7 @@ exports.genAttributeRow = (title, value) => {
         text: `${value}`,
         flex: 7,
         wrap: true,
-        size: "xs",
+        size: "sm",
       },
     ],
   };
@@ -98,8 +99,10 @@ exports.genSelectBubble = rows => {
           text: "查看其他等級",
           weight: "bold",
           align: "center",
+          size: "lg",
         },
       ],
+      paddingBottom: "3px",
     },
     body: {
       type: "box",
@@ -122,8 +125,10 @@ exports.genSearchBubble = rows => {
           text: "請選擇要查詢的技能",
           weight: "bold",
           align: "center",
+          size: "lg",
         },
       ],
+      paddingBottom: "3px",
     },
     body: {
       type: "box",
