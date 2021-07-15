@@ -4,6 +4,18 @@ const magicService = require("../services/magicService");
 const i18n = require("../../utils/i18n");
 const magicTemplate = require("../templates/magicTemplate");
 let skillRegex = /^.(skill|技能)\s(?<id>\d+)(\s(?<level>\d+))?/;
+const skipKeys = [
+  "teacher",
+  "recharge_effect",
+  "skill_type",
+  "icon",
+  "clan",
+  "clan2",
+  "id",
+  "cast_effect",
+  "target",
+  "level",
+];
 exports.routes = [text(skillRegex, showSkill), text(/^.?(skill|技能)\s/, searchSkill)];
 
 /**
@@ -49,7 +61,7 @@ async function showSkill(context, props) {
   const magic = await magicService.find(id, level);
 
   let rows = Object.keys(magic)
-    .filter(key => magic[key])
+    .filter(key => magic[key] && !skipKeys.includes(key))
     .map(key => magicTemplate.genAttributeRow(i18n.__("magic." + key), magic[key]));
 
   let bubbles = [magicTemplate.genMagicBubble(magic.name, magic.level, rows)];
