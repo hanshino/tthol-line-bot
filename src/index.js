@@ -3,6 +3,7 @@ const routes = [
   ...require("./app/controllers/questController").routes,
   ...require("./app/controllers/itemController").routes,
   ...require("./app/controllers/monsterController").routes,
+  ...require("./app/controllers/magicController").routes,
   text("*", context => context.sendText("沒有符合的指令")),
 ];
 
