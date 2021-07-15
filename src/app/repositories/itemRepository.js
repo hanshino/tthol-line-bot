@@ -33,8 +33,6 @@ exports.findByName = (names, filter = {}) => {
     }
   }
 
-  console.log(query.toSQL().toNative());
-
   return query;
 };
 
