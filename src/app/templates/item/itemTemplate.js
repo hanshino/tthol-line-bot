@@ -278,7 +278,7 @@ exports.genWeightedBubble = (equipA, equipB, rows) => {
               contents: [
                 {
                   type: "span",
-                  text: `${equipA}`,
+                  text: `${equipB}`,
                   color: "#315423",
                 },
                 {
@@ -287,7 +287,7 @@ exports.genWeightedBubble = (equipA, equipB, rows) => {
                 },
                 {
                   type: "span",
-                  text: `${equipB}`,
+                  text: `${equipA}`,
                   color: "#491254",
                 },
               ],
