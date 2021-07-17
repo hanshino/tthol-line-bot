@@ -87,12 +87,19 @@ async function searchItem(context, props) {
   const items = await itemService.getByName(params, { type: props.type });
 
   if (items.length === 0) {
-    return context.sendText("查無相對應的物品，建議只搜尋確認的字\n例如：極 重擊 赤");
+    return context.sendText("查無相對應的物品，建議只搜尋確認的字\n例如：物品 極 重擊 赤");
   }
 
   if (items.length === 1) {
     let [target] = items;
     return mediaList.includes(target.type) ? showMedia(context, target) : showItem(context, target);
+  }
+
+  let findResult = items.find(item => item.name === params[0]);
+  if (findResult) {
+    return mediaList.includes(findResult.type)
+      ? showMedia(context, findResult)
+      : showItem(context, findResult);
   }
 
   return showSearchResult(context, items);
