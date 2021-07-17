@@ -97,3 +97,20 @@ exports.getColumns = async () => {
   memory.put("ITEM_COLUMNS", cols);
   return cols;
 };
+
+/**
+ * 取得指定的所有`id`物品
+ * @param {Array} ids
+ * @param {Object} filter
+ * @param {Object} sort
+ * @return {Promise<Array>}
+ */
+exports.getAllById = (ids, filter = {}, sort = {}) => {
+  let query = item().select("*").whereIn("id", ids);
+
+  if (sort.orderBy) {
+    query.orderBy(sort.orderBy, sort.order || "desc");
+  }
+
+  return query;
+};

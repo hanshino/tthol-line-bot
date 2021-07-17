@@ -21,3 +21,7 @@ exports.filterByAttributes = (filter = {}) => {
 exports.getColumns = () => {
   return itemRepo.getColumns();
 };
+
+exports.getAllById = (ids, filter = {}, sort = {}) => {
+  return itemRepo.getAllById(ids, filter, sort);
+};
