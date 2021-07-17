@@ -16,7 +16,7 @@ const skipKeys = [
   "target",
   "level",
 ];
-exports.routes = [text(skillRegex, showSkill), text(/^.?(skill|技能)\s/, searchSkill)];
+exports.routes = [text(skillRegex, showSkill), text(/^\.?(skill|技能)\s/, searchSkill)];
 
 /**
  * 技能搜尋

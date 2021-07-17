@@ -9,49 +9,49 @@ const mediaList = ["背飾", "座騎"];
 const skipKeys = ["id", "name", "note", "type", "picture", "summary", "src"];
 const weighted = require("../../configs/weighted.config");
 const alias = [
-  { origin: /^.?(外功?[坐座]騎)$/, to: ".driverrank 外*11 物 技*3 命 防 護", type: "座騎" },
-  { origin: /^.?(玄學?[坐座]騎)$/, to: ".driverrank 玄*7 技*3 命 防*2 護", type: "座騎" },
-  { origin: /^.?(內力?[坐座]騎)$/, to: ".driverrank 內*7 技*3 命 防*2 護", type: "座騎" },
-  { origin: /^.?(身法?[坐座]騎)$/, to: ".driverrank 身*7 重擊*5 閃躲*3 防*2 護", type: "座騎" },
-  { origin: /^.?(外玄[坐座]騎)$/, to: ".driverrank 外*10 玄*7 物 技*3 命 防 護", type: "座騎" },
-  { origin: /^.?(玄內[坐座]騎)$/, to: ".driverrank 玄*7 內*7 技*3 命 防*2 護", type: "座騎" },
-  { origin: /^.?(外功?背[部飾])$/, to: ".backrank 外*11 物 技*3 命 防 護", type: "背飾" },
-  { origin: /^.?(玄學?背[部飾])$/, to: ".backrank 玄*7 技*3 命 防*2 護", type: "背飾" },
-  { origin: /^.?(內力?背[部飾])$/, to: ".backrank 內*7 技*3 命 防*2 護", type: "背飾" },
-  { origin: /^.?(身法?背[部飾])$/, to: ".backrank 身*7 重擊*5 閃躲*3 防*2 護", type: "背飾" },
-  { origin: /^.?(外玄背[部飾])$/, to: ".backrank 外*10 玄*7 物 技*3 命 防 護", type: "背飾" },
-  { origin: /^.?(玄內背[部飾])$/, to: ".backrank 玄*7 內*7 技*3 命 防*2 護", type: "背飾" },
+  { origin: /^\.?(外功?[坐座]騎)$/, to: ".driverrank 外*11 物 技*3 命 防 護", type: "座騎" },
+  { origin: /^\.?(玄學?[坐座]騎)$/, to: ".driverrank 玄*7 技*3 命 防*2 護", type: "座騎" },
+  { origin: /^\.?(內力?[坐座]騎)$/, to: ".driverrank 內*7 技*3 命 防*2 護", type: "座騎" },
+  { origin: /^\.?(身法?[坐座]騎)$/, to: ".driverrank 身*7 重擊*5 閃躲*3 防*2 護", type: "座騎" },
+  { origin: /^\.?(外玄[坐座]騎)$/, to: ".driverrank 外*10 玄*7 物 技*3 命 防 護", type: "座騎" },
+  { origin: /^\.?(玄內[坐座]騎)$/, to: ".driverrank 玄*7 內*7 技*3 命 防*2 護", type: "座騎" },
+  { origin: /^\.?(外功?背[部飾])$/, to: ".backrank 外*11 物 技*3 命 防 護", type: "背飾" },
+  { origin: /^\.?(玄學?背[部飾])$/, to: ".backrank 玄*7 技*3 命 防*2 護", type: "背飾" },
+  { origin: /^\.?(內力?背[部飾])$/, to: ".backrank 內*7 技*3 命 防*2 護", type: "背飾" },
+  { origin: /^\.?(身法?背[部飾])$/, to: ".backrank 身*7 重擊*5 閃躲*3 防*2 護", type: "背飾" },
+  { origin: /^\.?(外玄背[部飾])$/, to: ".backrank 外*10 玄*7 物 技*3 命 防 護", type: "背飾" },
+  { origin: /^\.?(玄內背[部飾])$/, to: ".backrank 玄*7 內*7 技*3 命 防*2 護", type: "背飾" },
 ];
 
 // 一定要 `exports` 此變數
 exports.routes = [
   route(isFilter, showFilter),
   route(isAlias, (context, props) => showRanking(context, { type: context.rankType, ...props })),
-  text(/^.?(item|物品?)\s(?<item>\d+)$/, searchItemId),
-  text(/^.?(item|物品?)\s/, searchItem),
-  text(/^.?(equip|裝備)\s/, (context, props) =>
+  text(/^\.?(item|物品)\s(?<item>\d+)$/, searchItemId),
+  text(/^\.?(item|物品)\s/, searchItem),
+  text(/^\.?(equip|裝備)\s/, (context, props) =>
     searchItem(context, { ...props, type: ["座騎", "背飾", "左飾", "中飾", "右飾", "帽"] })
   ),
-  text(/^.?(driver|[座坐]騎?)\s/, (context, props) =>
+  text(/^\.?(driver|[座坐]騎?)\s/, (context, props) =>
     searchItem(context, { ...props, type: "座騎" })
   ),
-  text(/^.?(back|背[部飾]?)\s/, (context, props) =>
+  text(/^\.?(back|背[部飾]?)\s/, (context, props) =>
     searchItem(context, { ...props, type: "背飾" })
   ),
-  text(/^.?(mid|中飾?)\s/, (context, props) => searchItem(context, { ...props, type: "中飾" })),
-  text(/^.?(left|左飾?)\s/, (context, props) => searchItem(context, { ...props, type: "左飾" })),
-  text(/^.?(right|右飾?)\s/, (context, props) => searchItem(context, { ...props, type: "右飾" })),
-  text(/^.?(compare|裝備比較)\s(?<equipA>\S+)\s(?<equipB>\S+)$/, equipCompare),
-  text(/^.?(drivercompare|[坐座]騎比較)\s(?<equipA>\S+)\s(?<equipB>\S+)$/, (context, props) =>
+  text(/^\.?(mid|中飾?)\s/, (context, props) => searchItem(context, { ...props, type: "中飾" })),
+  text(/^\.?(left|左飾?)\s/, (context, props) => searchItem(context, { ...props, type: "左飾" })),
+  text(/^\.?(right|右飾?)\s/, (context, props) => searchItem(context, { ...props, type: "右飾" })),
+  text(/^\.?(compare|裝備比較)\s(?<equipA>\S+)\s(?<equipB>\S+)$/, equipCompare),
+  text(/^\.?(drivercompare|[坐座]騎比較)\s(?<equipA>\S+)\s(?<equipB>\S+)$/, (context, props) =>
     equipCompare(context, { ...props, type: "座騎" })
   ),
-  text(/^.?(backcompare|背[部飾]比較)\s(?<equipA>\S+)\s(?<equipB>\S+)$/, (context, props) =>
+  text(/^\.?(backcompare|背[部飾]比較)\s(?<equipA>\S+)\s(?<equipB>\S+)$/, (context, props) =>
     equipCompare(context, { ...props, type: "背飾" })
   ),
-  text(/^.?(backrank|背[部飾]排行)\s/, (context, props) =>
+  text(/^\.?(backrank|背[部飾]排行)\s/, (context, props) =>
     showRanking(context, { ...props, type: "背飾" })
   ),
-  text(/^.?(driverrank|[坐座]騎排行)\s/, (context, props) =>
+  text(/^\.?(driverrank|[坐座]騎排行)\s/, (context, props) =>
     showRanking(context, { ...props, type: "座騎" })
   ),
 ];
@@ -192,8 +192,8 @@ async function isFilter(context) {
   let type = attrs.shift();
 
   let filterArr = [
-    { re: /^.?(driver|[座坐]騎?)$/, type: "座騎" },
-    { re: /^.?(back|背[部飾]?)$/, type: "背飾" },
+    { re: /^\.?(driver|[座坐]騎?)$/, type: "座騎" },
+    { re: /^\.?(back|背[部飾]?)$/, type: "背飾" },
   ];
 
   let filterType = filterArr.find(data => data.re.test(type));

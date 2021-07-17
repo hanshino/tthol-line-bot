@@ -5,10 +5,10 @@ const monsterTemplate = require("../templates/monsterTemplate");
 const i18n = require("../../utils/i18n");
 
 exports.routes = [
-  text(/^.?(monster|怪物?)\s(?<min_level>\d{1,3})~(?<max_level>\d{1,3})$/, levelSearch),
-  text(/^.?(monster|怪物?)\s(?<monster>\d+)$/, searchMonsterId),
-  text(/^.?(monster|怪物?)\s(?<monster>\S+)$/, searchMonster),
-  text(/^.?(?<elemental>[火水電木])屬怪物?(\s(?<level>\d+)等?)?$/, elementalSearch),
+  text(/^\.?(monster|怪物?)\s(?<min_level>\d{1,3})~(?<max_level>\d{1,3})$/, levelSearch),
+  text(/^\.?(monster|怪物?)\s(?<monster>\d+)$/, searchMonsterId),
+  text(/^\.?(monster|怪物?)\s(?<monster>\S+)$/, searchMonster),
+  text(/^\.?(?<elemental>[火水電木])屬怪物?(\s(?<level>\d+)等?)?$/, elementalSearch),
 ];
 
 async function levelSearch(context, props) {
@@ -143,7 +143,7 @@ async function isFilter(context) {
   const { text } = context.event.message;
   let attrs = text.split(/\s+/g);
 
-  if (/^.?(monster|怪物?)/.test(text) === false) return false;
+  if (/^\.?(monster|怪物?)/.test(text) === false) return false;
 
   let columns = await monsterService.getColumnNames();
   columns = columns.map(col => ({
