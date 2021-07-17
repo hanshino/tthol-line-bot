@@ -5,6 +5,11 @@ const rules = [
     altText: "阿克西斯教萬歲",
     template: require("../templates/authorTemplate").genContactMe(),
   },
+  {
+    pattern: ["進階書"],
+    altText: "主門派進階書選單",
+    template: require("../templates/staticTemplate").genMainAdvanceFlex(),
+  },
 ];
 
 let routes = rules.map(rule =>
