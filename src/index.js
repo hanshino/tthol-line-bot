@@ -1,5 +1,6 @@
 const { router, text } = require("bottender/router");
 const routes = [
+  ...require("./app/controllers/templateController").routes,
   ...require("./app/controllers/manualController").routes,
   ...require("./app/controllers/questController").routes,
   ...require("./app/controllers/monsterController").routes,
