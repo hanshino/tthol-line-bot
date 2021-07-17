@@ -173,4 +173,21 @@ module.exports = [
       },
     ],
   },
+  {
+    type: "手甲",
+    params: [
+      {
+        key: "dex",
+        value: 7,
+      },
+      {
+        key: "hit",
+        value: 5,
+      },
+      {
+        key: "atk",
+        value: 7,
+      },
+    ],
+  },
 ];
