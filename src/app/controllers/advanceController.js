@@ -6,6 +6,7 @@ const advanceTemplate = require("../templates/advanceTemplate");
 exports.routes = [route(isAskAdvanced, showAdvanced)];
 
 function isAskAdvanced(context) {
+  if (!context.event.isText) return false;
   let types = advanceConfig.map(config => config.title);
   let { text } = context.event.message;
   let regex = new RegExp(`^(?<type>(${types.join("|")}))技能書$`);

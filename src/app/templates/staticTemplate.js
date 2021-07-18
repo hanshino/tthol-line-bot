@@ -77,7 +77,7 @@ exports.genMainAdvanceFlex = () => ({
                     ],
                     action: {
                       type: "message",
-                      text: "外刀技能書",
+                      text: "刀法技能書",
                     },
                   },
                 ],

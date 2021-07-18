@@ -9,18 +9,18 @@ const mediaList = ["背飾", "座騎"];
 const skipKeys = ["id", "name", "note", "type", "picture", "summary", "src"];
 const weighted = require("../../configs/weighted.config");
 const alias = [
-  { origin: /^\.?(外功?[坐座]騎)$/, to: ".driverrank 外*11 物 技*3 命 防 護", type: "座騎" },
-  { origin: /^\.?(玄學?[坐座]騎)$/, to: ".driverrank 玄*7 技*3 命 防*2 護", type: "座騎" },
-  { origin: /^\.?(內力?[坐座]騎)$/, to: ".driverrank 內*7 技*3 命 防*2 護", type: "座騎" },
-  { origin: /^\.?(身法?[坐座]騎)$/, to: ".driverrank 身*7 重擊*5 閃躲*3 防*2 護", type: "座騎" },
-  { origin: /^\.?(外玄[坐座]騎)$/, to: ".driverrank 外*10 玄*7 物 技*3 命 防 護", type: "座騎" },
-  { origin: /^\.?(玄內[坐座]騎)$/, to: ".driverrank 玄*7 內*7 技*3 命 防*2 護", type: "座騎" },
-  { origin: /^\.?(外功?背[部飾])$/, to: ".backrank 外*11 物 技*3 命 防 護", type: "背飾" },
-  { origin: /^\.?(玄學?背[部飾])$/, to: ".backrank 玄*7 技*3 命 防*2 護", type: "背飾" },
-  { origin: /^\.?(內力?背[部飾])$/, to: ".backrank 內*7 技*3 命 防*2 護", type: "背飾" },
-  { origin: /^\.?(身法?背[部飾])$/, to: ".backrank 身*7 重擊*5 閃躲*3 防*2 護", type: "背飾" },
-  { origin: /^\.?(外玄背[部飾])$/, to: ".backrank 外*10 玄*7 物 技*3 命 防 護", type: "背飾" },
-  { origin: /^\.?(玄內背[部飾])$/, to: ".backrank 玄*7 內*7 技*3 命 防*2 護", type: "背飾" },
+  { origin: /^\.?(外功?[坐座]騎)$/, to: ".driverrank 外*11 物 技*3 命", type: "座騎" },
+  { origin: /^\.?(玄學?[坐座]騎)$/, to: ".driverrank 玄*7 技*3 命", type: "座騎" },
+  { origin: /^\.?(內力?[坐座]騎)$/, to: ".driverrank 內*7 技*3 命", type: "座騎" },
+  { origin: /^\.?(身法?[坐座]騎)$/, to: ".driverrank 身*7 重擊*5 閃躲*3", type: "座騎" },
+  { origin: /^\.?(外玄[坐座]騎)$/, to: ".driverrank 外*10 玄*7 物 技*3 命", type: "座騎" },
+  { origin: /^\.?(玄內[坐座]騎)$/, to: ".driverrank 玄*7 內*7 技*3 命", type: "座騎" },
+  { origin: /^\.?(外功?背[部飾])$/, to: ".backrank 外*11 物 技*3 命", type: "背飾" },
+  { origin: /^\.?(玄學?背[部飾])$/, to: ".backrank 玄*7 技*3 命", type: "背飾" },
+  { origin: /^\.?(內力?背[部飾])$/, to: ".backrank 內*7 技*3 命", type: "背飾" },
+  { origin: /^\.?(身法?背[部飾])$/, to: ".backrank 身*7 重擊*5 閃躲*3", type: "背飾" },
+  { origin: /^\.?(外玄背[部飾])$/, to: ".backrank 外*10 玄*7 物 技*3 命", type: "背飾" },
+  { origin: /^\.?(玄內背[部飾])$/, to: ".backrank 玄*7 內*7 技*3 命", type: "背飾" },
 ];
 
 // 一定要 `exports` 此變數
@@ -248,6 +248,13 @@ async function equipCompare(context, props) {
   let a = await itemService.getByName([equipA], { type });
   let b = await itemService.getByName([equipB], { type });
 
+  if (a.length === 0) {
+    return context.sendText(`錯誤： \`${equipA}\` 查無結果`);
+  }
+  if (b.length === 0) {
+    return context.sendText(`錯誤： \`${equipB}\` 查無結果`);
+  }
+
   if (a.length > 1) {
     context.sendText(`錯誤： \`${equipA}\` 查到${a.length}個結果`);
   }
@@ -346,9 +353,11 @@ function equipDiff(a, b) {
  * @param {Array<{key: String, value: number}>} 參數
  */
 function weightedCaculate(equip, params) {
-  return params
+  let weight = params
     .map(param => (equip[param.key] || 0) * param.value)
     .reduce((pre, curr) => pre + curr);
+
+  return Math.round(weight);
 }
 
 async function getSheetPicture(target) {
@@ -408,7 +417,7 @@ async function showRanking(context, props) {
   }
 
   context.sendFlex("排行計算", { type: "carousel", contents: bubbles });
-  context.sendText(`公式參考：${attrDetail.map(attr => `${attr.name}*${attr.value}`).join(" ")}`);
+  context.sendText(`公式參考：${attrDetail.map(attr => `${attr.name}*${attr.value}`).join("+")}`);
 }
 
 /**
@@ -416,6 +425,7 @@ async function showRanking(context, props) {
  * @param {Context} context
  */
 function isAlias(context) {
+  if (!context.event.isText) return false;
   const { text } = context.event.message;
   let target = alias.find(alia => alia.origin.test(text));
   if (!target) return false;

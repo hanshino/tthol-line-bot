@@ -17,8 +17,10 @@ function fallback(context) {
 }
 
 module.exports = async function App(context) {
-  let { userId, type } = context.event.source;
-  let { text } = context.event.message;
-  console.log(userId, context.event.source[`${type}Id`], text);
+  if (context.event.isText) {
+    let { userId, type } = context.event.source;
+    let { text } = context.event.message;
+    console.log(userId, context.event.source[`${type}Id`], text);
+  }
   return router(routes);
 };
