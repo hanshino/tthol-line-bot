@@ -30,7 +30,7 @@ exports.routes = [
   text(/^\.?(item|物品)\s(?<item>\d+)$/, searchItemId),
   text(/^\.?(item|物品)\s/, searchItem),
   text(/^\.?(equip|裝備)\s/, (context, props) =>
-    searchItem(context, { ...props, type: ["座騎", "背飾", "左飾", "中飾", "右飾", "帽"] })
+    searchItem(context, { ...props, type: ["座騎", "背飾", "左飾", "中飾", "右飾", "帽", "衣"] })
   ),
   text(/^\.?(driver|[座坐]騎?)\s/, (context, props) =>
     searchItem(context, { ...props, type: "座騎" })
@@ -201,6 +201,9 @@ async function isFilter(context) {
   let filterArr = [
     { re: /^\.?(driver|[座坐]騎?)$/, type: "座騎" },
     { re: /^\.?(back|背[部飾]?)$/, type: "背飾" },
+    { re: /^\.?(mid|中飾?)$/, type: "中飾" },
+    { re: /^\.?(left|左飾?)$/, type: "左飾" },
+    { re: /^\.?(right|右飾?)$/, type: "右飾" },
   ];
 
   let filterType = filterArr.find(data => data.re.test(type));

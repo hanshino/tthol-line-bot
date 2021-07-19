@@ -14,12 +14,15 @@ exports.routes = [
 async function levelSearch(context, props) {
   const { min_level, max_level } = props.match.groups;
 
-  let monsters = await monsterService.search({
-    attributes: [
-      { key: "level", operation: ">=", value: min_level },
-      { key: "level", operation: "<=", value: max_level },
-    ],
-  });
+  let monsters = await monsterService.search(
+    {
+      attributes: [
+        { key: "level", operation: ">=", value: min_level },
+        { key: "level", operation: "<=", value: max_level },
+      ],
+    },
+    { orderBy: "level", order: "asc" }
+  );
 
   return showMultiResult(context, monsters);
 }
@@ -48,6 +51,10 @@ function monsterFilter(context) {
 async function searchMonsterId(context, props) {
   const { monster: id } = props.match.groups;
   const target = await monsterService.find(id);
+
+  if (!target) {
+    return context.sendText(i18n.__("monster.id_not_found"));
+  }
 
   return showResult(context, target);
 }
@@ -110,7 +117,7 @@ async function searchMonster(context, props) {
   }
 
   if (monsters.length === 1) {
-    return context.sendText(`您要查詢的是${monsters[0].name}`);
+    return showResult(context, monsters[0]);
   }
 
   return showMultiResult(context, monsters);

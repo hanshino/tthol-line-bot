@@ -283,7 +283,7 @@ exports.genWeightedBubble = (equipA, equipB, rows) => {
                 },
                 {
                   type: "span",
-                  text: " 換 ",
+                  text: " 換成 ",
                 },
                 {
                   type: "span",

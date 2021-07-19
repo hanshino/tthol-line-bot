@@ -80,7 +80,8 @@
     "move_sound": "移動音檔",
     "atta_sound": "攻擊音檔",
     "hurt_sound": "受傷音檔",
-    "dead_sound": "死亡音檔"
+    "dead_sound": "死亡音檔",
+    "id_not_found": "查無此id怪物"
   },
   "magic": {
     "level": "等級",
@@ -127,6 +128,7 @@
     "pet_id": "pet_id",
     "confine_state": "confine_state",
     "id": "編號",
-    "icon": "圖示"
+    "icon": "圖示",
+    "not_found": "查無此技能，請確認參數是否正常！"
   }
 }

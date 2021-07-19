@@ -48,10 +48,15 @@ exports.getColumnNames = async () => {
 /**
  * 指定篩選器進行搜尋
  * @param {Object} filter
+ * @param {Object} sort
  * @param {Array<{key: String, value, operation: String}>} filter.attributes
  */
-exports.search = filter => {
+exports.search = (filter, sort = {}) => {
   let query = monster().select("*");
+
+  if (sort.orderBy) {
+    query.orderBy(sort.orderBy, sort.order || "desc");
+  }
 
   if (filter.attributes) {
     filter.attributes.forEach(attr => query.where(attr.key, attr.operation || "=", attr.value));

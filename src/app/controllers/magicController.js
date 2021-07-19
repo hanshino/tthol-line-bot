@@ -60,6 +60,10 @@ async function showSkill(context, props) {
   const { id, level } = props.match.groups;
   const magic = await magicService.find(id, level);
 
+  if (!magic) {
+    return context.sendText(i18n.__("not_found"));
+  }
+
   let rows = Object.keys(magic)
     .filter(key => magic[key] && !skipKeys.includes(key))
     .map(key => magicTemplate.genAttributeRow(i18n.__("magic." + key), magic[key]));
