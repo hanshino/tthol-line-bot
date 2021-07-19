@@ -278,16 +278,16 @@ exports.genWeightedBubble = (equipA, equipB, rows) => {
               contents: [
                 {
                   type: "span",
-                  text: `${equipA}`,
+                  text: `${equipB}`,
                   color: "#315423",
                 },
                 {
                   type: "span",
-                  text: " 換 ",
+                  text: " 換成 ",
                 },
                 {
                   type: "span",
-                  text: `${equipB}`,
+                  text: `${equipA}`,
                   color: "#491254",
                 },
               ],

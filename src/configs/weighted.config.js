@@ -16,11 +16,11 @@ module.exports = [
       },
       {
         key: "def",
-        value: 2,
+        value: 0.5,
       },
       {
         key: "mdef",
-        value: 1,
+        value: 0.25,
       },
     ],
   },
@@ -45,11 +45,11 @@ module.exports = [
       },
       {
         key: "def",
-        value: 2,
+        value: 0.5,
       },
       {
         key: "mdef",
-        value: 2,
+        value: 0.5,
       },
     ],
   },
@@ -74,11 +74,11 @@ module.exports = [
       },
       {
         key: "def",
-        value: 2,
+        value: 0.5,
       },
       {
         key: "mdef",
-        value: 2,
+        value: 0.5,
       },
     ],
   },
@@ -107,11 +107,11 @@ module.exports = [
       },
       {
         key: "def",
-        value: 2,
+        value: 0.5,
       },
       {
         key: "mdef",
-        value: 1,
+        value: 0.25,
       },
     ],
   },
@@ -140,11 +140,11 @@ module.exports = [
       },
       {
         key: "def",
-        value: 2,
+        value: 0.5,
       },
       {
         key: "mdef",
-        value: 2,
+        value: 0.5,
       },
     ],
   },
@@ -165,11 +165,28 @@ module.exports = [
       },
       {
         key: "def",
-        value: 3,
+        value: 0.75,
       },
       {
         key: "mdef",
-        value: 3,
+        value: 0.75,
+      },
+    ],
+  },
+  {
+    type: "手甲",
+    params: [
+      {
+        key: "dex",
+        value: 15,
+      },
+      {
+        key: "hit",
+        value: 5,
+      },
+      {
+        key: "atk",
+        value: 7,
       },
     ],
   },

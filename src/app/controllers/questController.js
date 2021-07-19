@@ -164,17 +164,10 @@ function SevenStar(context, props) {
       bins = "0" + bins;
     }
 
-    let numAry = ["一", "二", "三", "四", "五", "六", "七"];
-    let msg = "";
-    msg += numAry.join(" ");
-    msg += "\n==================\n";
-    msg += bins
-      .split("")
-      .map(bin => (bin === "1" ? "開" : "關"))
-      .join(" ");
-    msg += "\n==================";
+    let result = bins.split("").map(b => (b === "1" ? "開" : "關"));
+    let bubbles = [questTemplate.genSevenStarBubble(result), questTemplate.genSeverStarManual()];
 
-    context.sendText(msg);
+    context.sendFlex(result.reverse().join(""), { type: "carousel", contents: bubbles });
   } catch (e) {
     if (!(e instanceof QuestError)) throw e;
     context.sendText(e.message);

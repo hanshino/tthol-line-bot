@@ -5,21 +5,24 @@ const monsterTemplate = require("../templates/monsterTemplate");
 const i18n = require("../../utils/i18n");
 
 exports.routes = [
-  text(/^.?(monster|怪物?)\s(?<min_level>\d{1,3})~(?<max_level>\d{1,3})$/, levelSearch),
-  text(/^.?(monster|怪物?)\s(?<monster>\d+)$/, searchMonsterId),
-  text(/^.?(monster|怪物?)\s(?<monster>\S+)$/, searchMonster),
-  text(/^.?(?<elemental>[火水電木])屬怪物?(\s(?<level>\d+)等?)?$/, elementalSearch),
+  text(/^\.?(monster|怪物?)\s(?<min_level>\d{1,3})~(?<max_level>\d{1,3})$/, levelSearch),
+  text(/^\.?(monster|怪物?)\s(?<monster>\d+)$/, searchMonsterId),
+  text(/^\.?(monster|怪物?)\s(?<monster>\S+)$/, searchMonster),
+  text(/^\.?(?<elemental>[火水電木])屬怪物?(\s(?<level>\d+)等?)?$/, elementalSearch),
 ];
 
 async function levelSearch(context, props) {
   const { min_level, max_level } = props.match.groups;
 
-  let monsters = await monsterService.search({
-    attributes: [
-      { key: "level", operation: ">=", value: min_level },
-      { key: "level", operation: "<=", value: max_level },
-    ],
-  });
+  let monsters = await monsterService.search(
+    {
+      attributes: [
+        { key: "level", operation: ">=", value: min_level },
+        { key: "level", operation: "<=", value: max_level },
+      ],
+    },
+    { orderBy: "level", order: "asc" }
+  );
 
   return showMultiResult(context, monsters);
 }
@@ -48,6 +51,10 @@ function monsterFilter(context) {
 async function searchMonsterId(context, props) {
   const { monster: id } = props.match.groups;
   const target = await monsterService.find(id);
+
+  if (!target) {
+    return context.sendText(i18n.__("monster.id_not_found"));
+  }
 
   return showResult(context, target);
 }
@@ -110,7 +117,7 @@ async function searchMonster(context, props) {
   }
 
   if (monsters.length === 1) {
-    return context.sendText(`您要查詢的是${monsters[0].name}`);
+    return showResult(context, monsters[0]);
   }
 
   return showMultiResult(context, monsters);
@@ -143,7 +150,7 @@ async function isFilter(context) {
   const { text } = context.event.message;
   let attrs = text.split(/\s+/g);
 
-  if (/^.?(monster|怪物?)/.test(text) === false) return false;
+  if (/^\.?(monster|怪物?)/.test(text) === false) return false;
 
   let columns = await monsterService.getColumnNames();
   columns = columns.map(col => ({

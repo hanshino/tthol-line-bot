@@ -119,11 +119,13 @@ exports.genAttributeBubble = (title, rows) => {
           type: "text",
           text: `${title}`,
           weight: "bold",
+          size: "lg",
         },
         {
           type: "box",
           layout: "vertical",
           contents: rows,
+          paddingAll: "5px",
         },
       ],
     },

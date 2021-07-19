@@ -16,7 +16,7 @@ const skipKeys = [
   "target",
   "level",
 ];
-exports.routes = [text(skillRegex, showSkill), text(/^.?(skill|技能)\s/, searchSkill)];
+exports.routes = [text(skillRegex, showSkill), text(/^\.?(skill|技能)\s/, searchSkill)];
 
 /**
  * 技能搜尋
@@ -59,6 +59,10 @@ async function searchSkill(context, props) {
 async function showSkill(context, props) {
   const { id, level } = props.match.groups;
   const magic = await magicService.find(id, level);
+
+  if (!magic) {
+    return context.sendText(i18n.__("not_found"));
+  }
 
   let rows = Object.keys(magic)
     .filter(key => magic[key] && !skipKeys.includes(key))

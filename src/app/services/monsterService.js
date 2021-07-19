@@ -12,6 +12,6 @@ exports.getColumnNames = () => {
   return monsterRepo.getColumnNames();
 };
 
-exports.search = filter => {
-  return monsterRepo.search(filter);
+exports.search = (filter, sort) => {
+  return monsterRepo.search(filter, sort);
 };
