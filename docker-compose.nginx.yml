@@ -1,0 +1,27 @@
+version: "3.8"
+services:
+  nginx:
+    image: nginx
+    env_file: ./.env
+    volumes:
+      - ./docker/nginx.conf:/etc/nginx/nginx.conf
+    networks:
+      - nginx_network
+    environment:
+      - "VIRTUAL_HOST=${APP_DOMAIN}"
+      - "VIRTUAL_NETWORK=nginx-proxy"
+      - "VIRTUAL_PORT=80"
+      - "LETSENCRYPT_HOST=${APP_DOMAIN}"
+      - "LETSENCRYPT_EMAIL=${ADMIN_EMAIL}"
+  app:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    env_file: ./.env
+    volumes:
+      - .:/application
+
+networks:
+  nginx_network:
+    external: true
+    name: nginx_network
