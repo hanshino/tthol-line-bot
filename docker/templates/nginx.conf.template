@@ -1,12 +1,13 @@
 server {
-  listen 80 default_server;
+  listen 80;
+  server_name ${APP_DOMAIN};
 
   location /webhooks {
-    proxy_pass http://app:5000/webhooks;
+    proxy_pass http://tthol-app:5000/webhooks;
   }
 
   location /api {
-    proxy_pass http://app:5000/api;
+    proxy_pass http://tthol-app:5000/api;
   }
 
   location / {
