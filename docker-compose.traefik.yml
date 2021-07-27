@@ -1,0 +1,31 @@
+version: "3.8"
+services:
+  nginx:
+    image: nginx
+    volumes:
+      - ./docker/nginx.conf:/etc/nginx/conf.d/tthol.conf
+    networks:
+      - traefik
+      - bot_network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${PROJECT_NAME}-secure.rule=Host(`${APP_DOMAIN}`)"
+      - "traefik.http.routers.${PROJECT_NAME}-secure.entrypoints=websecure"
+      - "traefik.http.routers.${PROJECT_NAME}-secure.tls=true"
+      - "traefik.http.routers.${PROJECT_NAME}-secure.tls.certresolver=leresolver"
+      - "traefik.docker.network=traefik"
+  app:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    env_file: ./.env
+    networks:
+      - bot_network
+    volumes:
+      - ./storage:/application/storage
+
+networks:
+  traefik:
+    external: true
+    name: traefik
+  bot_network:
