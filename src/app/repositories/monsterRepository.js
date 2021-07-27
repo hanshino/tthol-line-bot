@@ -49,7 +49,7 @@ exports.getColumnNames = async () => {
  * 指定篩選器進行搜尋
  * @param {Object} filter
  * @param {Object} sort
- * @param {Array<{key: String, value, operation: String}>} filter.attributes
+ * @param {Array<{key: String, value, operation: String, in: Array}>} filter.attributes
  */
 exports.search = (filter, sort = {}) => {
   let query = monster().select("*");
@@ -59,7 +59,13 @@ exports.search = (filter, sort = {}) => {
   }
 
   if (filter.attributes) {
-    filter.attributes.forEach(attr => query.where(attr.key, attr.operation || "=", attr.value));
+    filter.attributes.forEach(attr => {
+      if (attr.in) {
+        query.whereIn(attr.key, attr.in);
+      } else if (attr.value) {
+        query.where(attr.key, attr.operation || "=", attr.value);
+      }
+    });
   }
 
   return query;

@@ -1,15 +1,41 @@
-const { Context } = require("bottender");
+const { Context, withProps } = require("bottender");
 const { text } = require("bottender/router");
 const monsterService = require("../services/monsterService");
 const monsterTemplate = require("../templates/monsterTemplate");
 const i18n = require("../../utils/i18n");
 
 exports.routes = [
+  text("怪物字卡 武", withProps(filterMonster, { type: [19], elemental: "水" })),
+  text("怪物字卡 林", withProps(filterMonster, { type: [16, 17, 19], elemental: "木" })),
+  text("怪物字卡 同", withProps(filterMonster, { type: [17, 18, 19], elemental: "雷" })),
+  text("怪物字卡 萌", withProps(filterMonster, { type: [15, 17], elemental: "火" })),
+  text("怪物字卡 傳", withProps(filterMonster, { type: [13, 14, 17], elemental: "水" })),
+  text("怪物字卡 我", withProps(filterMonster, { type: [16, 17, 19], elemental: "木" })),
+  text("怪物字卡 愛", withProps(filterMonster, { type: [17, 18, 19], elemental: "雷" })),
+  text("怪物字卡 你", withProps(filterMonster, { type: [17, 19], elemental: "火" })),
   text(/^\.?(monster|怪物?)\s(?<min_level>\d{1,3})~(?<max_level>\d{1,3})$/, levelSearch),
   text(/^\.?(monster|怪物?)\s(?<monster>\d+)$/, searchMonsterId),
   text(/^\.?(monster|怪物?)\s(?<monster>\S+)$/, searchMonster),
   text(/^\.?(?<elemental>[火水電木])屬怪物?(\s(?<level>\d+)等?)?$/, elementalSearch),
 ];
+
+async function filterMonster(context, props) {
+  const { type, elemental } = props;
+  let monsters = await monsterService.search(
+    {
+      attributes: [
+        { key: "type", in: type },
+        { key: "elemental", operation: "=", value: elemental },
+        { key: "level", operation: ">=", value: 40 },
+        { key: "level", operation: "<=", value: 170 },
+        { key: "drop_exp", operation: ">", value: 1 },
+      ],
+    },
+    { orderBy: "level", order: "asc" }
+  );
+
+  return showMultiResult(context, monsters);
+}
 
 async function levelSearch(context, props) {
   const { min_level, max_level } = props.match.groups;

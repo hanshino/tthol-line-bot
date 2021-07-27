@@ -1,4 +1,4 @@
-FROM node:current
+FROM node:lts
 
 LABEL Name="tthol Line機器人"
 LABEL description="非官方，純玩家興趣而寫的機器人"
