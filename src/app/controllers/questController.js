@@ -24,7 +24,7 @@ function ForestMatrix(context, props) {
     { name: room2, value: parseInt(number2) },
   ]);
 
-  context.sendText(matrix.map(data => `${data.name}${data.value}`).join(" "));
+  context.replyText(matrix.map(data => `${data.name}${data.value}`).join(" "));
 }
 
 function calculate(sum, rooms) {
@@ -167,10 +167,10 @@ function SevenStar(context, props) {
     let result = bins.split("").map(b => (b === "1" ? "開" : "關"));
     let bubbles = [questTemplate.genSevenStarBubble(result), questTemplate.genSeverStarManual()];
 
-    context.sendFlex(result.reverse().join(""), { type: "carousel", contents: bubbles });
+    context.replyFlex(result.reverse().join(""), { type: "carousel", contents: bubbles });
   } catch (e) {
     if (!(e instanceof QuestError)) throw e;
-    context.sendText(e.message);
+    context.replyText(e.message);
   }
 }
 
@@ -285,9 +285,9 @@ function GodQuest(context, props) {
     let results = getGodQuestResult(parseInt(sum), parseInt(leak));
     if (results.length <= 1) throw new QuestError("計算失敗！");
 
-    return context.sendFlex("計算結果", questTemplate.genGodQuestBubble(results[0]));
+    return context.replyFlex("計算結果", questTemplate.genGodQuestBubble(results[0]));
   } catch (e) {
     if (!(e instanceof QuestError)) throw e;
-    return context.sendText(e.message);
+    return context.replyText(e.message);
   }
 }

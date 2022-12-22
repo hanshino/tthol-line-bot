@@ -79,7 +79,7 @@ async function searchMonsterId(context, props) {
   const target = await monsterService.find(id);
 
   if (!target) {
-    return context.sendText(i18n.__("monster.id_not_found"));
+    return context.replyText(i18n.__("monster.id_not_found"));
   }
 
   return showResult(context, target);
@@ -126,7 +126,7 @@ function showResult(context, target) {
     )
   );
 
-  context.sendFlex(target.name, { type: "carousel", contents: bubbles });
+  context.replyFlex(target.name, { type: "carousel", contents: bubbles });
 }
 
 /**
@@ -139,7 +139,7 @@ async function searchMonster(context, props) {
   const monsters = await monsterService.searchByName(monster, false);
 
   if (monsters.length === 0) {
-    return context.sendText("查無相對應的結果");
+    return context.replyText("查無相對應的結果");
   }
 
   if (monsters.length === 1) {
@@ -161,13 +161,13 @@ async function showMultiResult(context, monsters) {
     bubbles.push(monsterTemplate.genMonsterBubble(rows.slice(i, i + 10)));
   }
 
-  context.sendFlex("查詢結果", {
+  context.replyFlex("查詢結果", {
     type: "carousel",
     contents: bubbles.slice(0, 12),
   });
 
   if (bubbles.length > 12) {
-    context.sendText("還有剩餘結果未顯示，如未在上列，請縮小搜尋範圍");
+    context.replyText("還有剩餘結果未顯示，如未在上列，請縮小搜尋範圍");
   }
 }
 

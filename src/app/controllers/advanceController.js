@@ -49,7 +49,7 @@ async function showAdvanced(context) {
     )
   );
 
-  context.sendFlex(`${type}技能書資訊`, { type: "carousel", contents: bubbles });
+  context.replyFlex(`${type}技能書資訊`, { type: "carousel", contents: bubbles });
 }
 
 /**

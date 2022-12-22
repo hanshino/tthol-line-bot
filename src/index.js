@@ -12,7 +12,7 @@ const routes = [
 
 function fallback(context) {
   if (context.event.source.type === "user") {
-    context.sendText("沒有符合的指令");
+    context.replyText("沒有符合的指令");
   }
 }
 

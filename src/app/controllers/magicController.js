@@ -39,7 +39,7 @@ async function searchSkill(context, props) {
   }
 
   if (magics.length === 0) {
-    return context.sendText(
+    return context.replyText(
       `您搜尋的：${params.join("+")}\n查無此技能，建議只針對確定的關鍵字搜尋，例如：幻 甲 靈`
     );
   }
@@ -53,7 +53,7 @@ async function searchSkill(context, props) {
     selectRows.push(magicTemplate.genSelectRow(texts.slice(i, i + 2)));
   }
 
-  context.sendFlex(`${params.join("+")} 的查詢結果`, magicTemplate.genSearchBubble(selectRows));
+  context.replyFlex(`${params.join("+")} 的查詢結果`, magicTemplate.genSearchBubble(selectRows));
 }
 
 async function showSkill(context, props) {
@@ -61,7 +61,7 @@ async function showSkill(context, props) {
   const magic = await magicService.find(id, level);
 
   if (!magic) {
-    return context.sendText(i18n.__("not_found"));
+    return context.replyText(i18n.__("not_found"));
   }
 
   let rows = Object.keys(magic)
@@ -83,5 +83,5 @@ async function showSkill(context, props) {
 
   bubbles.push(magicTemplate.genSelectBubble(selectRows));
 
-  context.sendFlex(`${magic.name} 的資訊`, { type: "carousel", contents: bubbles });
+  context.replyFlex(`${magic.name} 的資訊`, { type: "carousel", contents: bubbles });
 }
