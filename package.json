@@ -13,17 +13,17 @@
     "bottender": "1.5.5",
     "express": "^4.18.2",
     "i18n": "^0.15.1",
-    "knex": "^2.3.0",
+    "knex": "^2.4.0",
     "memory-cache": "^0.2.0",
     "sqlite3": "^5.1.4"
   },
   "devDependencies": {
     "dotenv": "^16.0.3",
     "dumper.js": "^1.3.1",
-    "eslint": "^8.30.0",
-    "eslint-config-prettier": "^8.5.0",
+    "eslint": "^8.31.0",
+    "eslint-config-prettier": "^8.6.0",
     "eslint-plugin-prettier": "^4.2.1",
     "jest": "^29.3.1",
-    "prettier": "^2.8.1"
+    "prettier": "^2.8.2"
   }
 }
