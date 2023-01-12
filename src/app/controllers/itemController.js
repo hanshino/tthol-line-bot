@@ -59,11 +59,11 @@ exports.routes = [
 async function searchItemId(context, props) {
   const { item } = props.match.groups;
 
-  context.sendText(`id搜尋，id: ${item}`);
+  context.replyText(`id搜尋，id: ${item}`);
   let result = await itemService.getById(item);
 
   if (result.length === 0) {
-    return context.sendText("查無此id");
+    return context.replyText("查無此id");
   }
 
   let [target] = result;
@@ -83,11 +83,11 @@ async function searchItemId(context, props) {
 async function searchItem(context, props) {
   const params = context.event.message.text.split(/\s+/g);
   params.shift();
-  context.sendText(`您要查的是 ${params.join("+")}`);
+  context.replyText(`您要查的是 ${params.join("+")}`);
   const items = await itemService.getByName(params, { type: props.type });
 
   if (items.length === 0) {
-    return context.sendText("查無相對應的物品，建議只搜尋確認的字\n例如：物品 極 重擊 赤");
+    return context.replyText("查無相對應的物品，建議只搜尋確認的字\n例如：物品 極 重擊 赤");
   }
 
   if (items.length === 1) {
@@ -116,7 +116,7 @@ function showSearchResult(context, items) {
   });
 
   for (let i = 0; i < bubbles.length; i += 10) {
-    context.sendFlex("物品查詢結果", {
+    context.replyFlex("物品查詢結果", {
       type: "carousel",
       contents: bubbles.slice(i, i + 10),
     });
@@ -151,7 +151,7 @@ function showItem(context, item) {
       return `${i18n.__(`item.${key}`)}：${item[key]}`;
     });
 
-  return context.sendText(response.join("\n").replace(/\\n+/g, "\n"));
+  return context.replyText(response.join("\n").replace(/\\n+/g, "\n"));
 }
 
 /**
@@ -173,7 +173,7 @@ async function showMedia(context, target) {
     .map(key => itemTemplate.genAttributeRow(i18n.__("item." + key), target[key]));
 
   bubbles.push(itemTemplate.genAttributeBubble(rows));
-  context.sendFlex(target.name, { type: "carousel", contents: bubbles });
+  context.replyFlex(target.name, { type: "carousel", contents: bubbles });
 }
 
 async function getSheetEquipData(target) {
@@ -252,17 +252,17 @@ async function equipCompare(context, props) {
   let b = await itemService.getByName([equipB], { type });
 
   if (a.length === 0) {
-    return context.sendText(`錯誤： \`${equipA}\` 查無結果`);
+    return context.replyText(`錯誤： \`${equipA}\` 查無結果`);
   }
   if (b.length === 0) {
-    return context.sendText(`錯誤： \`${equipB}\` 查無結果`);
+    return context.replyText(`錯誤： \`${equipB}\` 查無結果`);
   }
 
   if (a.length > 1) {
-    context.sendText(`錯誤： \`${equipA}\` 查到${a.length}個結果`);
+    context.replyText(`錯誤： \`${equipA}\` 查到${a.length}個結果`);
   }
   if (b.length > 1) {
-    context.sendText(`錯誤： \`${equipB}\` 查到${b.length}個結果`);
+    context.replyText(`錯誤： \`${equipB}\` 查到${b.length}個結果`);
   }
 
   if (a.length > 1 || b.length > 1) return;
@@ -271,7 +271,7 @@ async function equipCompare(context, props) {
   [b] = b;
 
   if (!type && a.type !== b.type) {
-    return context.sendText(
+    return context.replyText(
       `無法比較兩種不同類型的裝備\n${equipA} 為 **${a.type}**\n${equipB} 為 **${b.type}**`
     );
   }
@@ -313,7 +313,7 @@ async function equipCompare(context, props) {
     );
   });
 
-  context.sendFlex("比較結果", { type: "carousel", contents: bubbles });
+  context.replyFlex("比較結果", { type: "carousel", contents: bubbles });
 }
 
 /**
@@ -401,7 +401,7 @@ async function showRanking(context, props) {
   });
 
   if (attrDetail.length === 0) {
-    return context.sendText(
+    return context.replyText(
       "無合法的屬性參數，以下為可以用的屬性\n" + columns.map(col => col.note).join("、")
     );
   }
@@ -419,8 +419,8 @@ async function showRanking(context, props) {
     bubbles.push(itemTemplate.genRankBubble(rows.slice(i, i + 10)));
   }
 
-  context.sendFlex("排行計算", { type: "carousel", contents: bubbles });
-  context.sendText(`公式參考：${attrDetail.map(attr => `${attr.name}*${attr.value}`).join("+")}`);
+  context.replyFlex("排行計算", { type: "carousel", contents: bubbles });
+  context.replyText(`公式參考：${attrDetail.map(attr => `${attr.name}*${attr.value}`).join("+")}`);
 }
 
 /**

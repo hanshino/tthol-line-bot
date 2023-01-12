@@ -29,7 +29,7 @@ const rules = [
 ];
 
 let routes = rules.map(rule =>
-  text(rule.pattern, context => context.sendFlex(rule.altText, rule.template))
+  text(rule.pattern, context => context.replyFlex(rule.altText, rule.template))
 );
 
 exports.routes = routes;
