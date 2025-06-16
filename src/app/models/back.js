@@ -13,6 +13,6 @@ module.exports = async () => {
     gid: process.env.EQUIP_SHEET_BACK_GID,
   });
 
-  memory.put(BACK_KEY, data);
+  memory.put(BACK_KEY, data, 1000 * 60 * 5);
   return data;
 };

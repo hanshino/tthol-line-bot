@@ -13,6 +13,6 @@ module.exports = async () => {
     gid: process.env.EQUIP_SHEET_DRIVER_GID,
   });
 
-  memory.put(DRIVER_KEY, data);
+  memory.put(DRIVER_KEY, data, 1000 * 60 * 5);
   return data;
 };

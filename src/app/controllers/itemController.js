@@ -259,10 +259,26 @@ async function equipCompare(context, props) {
   }
 
   if (a.length > 1) {
-    context.replyText(`錯誤： \`${equipA}\` 查到${a.length}個結果`);
+    // 如果有多個結果，但其中一個結果的名稱與查詢名稱完全相同，則直接使用該結果
+    let filterA = a.filter(item => item.name === equipA);
+    if (filterA.length === 1) {
+      a = filterA;
+    } else {
+      return context.replyText(
+        `錯誤： \`${equipA}\` 有多個結果，請更精確的查詢名稱\n例如：\`${equipA}xxx\``
+      );
+    }
   }
   if (b.length > 1) {
-    context.replyText(`錯誤： \`${equipB}\` 查到${b.length}個結果`);
+    // 如果有多個結果，但其中一個結果的名稱與查詢名稱完全相同，則直接使用該結果
+    let filterB = b.filter(item => item.name === equipB);
+    if (filterB.length === 1) {
+      b = filterB;
+    } else {
+      return context.replyText(
+        `錯誤： \`${equipB}\` 有多個結果，請更精確的查詢名稱\n例如：\`${equipB}xxx\``
+      );
+    }
   }
 
   if (a.length > 1 || b.length > 1) return;
