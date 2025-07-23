@@ -7,7 +7,7 @@ const knex = require("../models/model");
  * @param {boolean} distinct  是否過濾重複資料
  */
 exports.searchByName = (names, distinct = false) => {
-  let query = magic().select("*").orderBy("level", "desc");
+  let query = magic().select("*").orderBy("level", "asc");
 
   names.forEach(name => {
     query.where("name", "like", `%${name}%`);
