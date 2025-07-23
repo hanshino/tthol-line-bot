@@ -88,7 +88,7 @@ exports.search = (filter, sort = {}) => {
 exports.findByDropItem = (itemId, sort = {}) => {
   let query = monster()
     .select("*")
-    .whereRaw("JSON_SEARCH(drop_item, 'one', ?) IS NOT NULL", [String(itemId)]);
+    .whereRaw("drop_item LIKE ?", [`%"${String(itemId)}"%`]);
 
   if (sort.orderBy) {
     query.orderBy(sort.orderBy, sort.order || "desc");

@@ -2,6 +2,7 @@ const i18n = require("../../utils/i18n");
 const { Context } = require("bottender");
 const { text, route } = require("bottender/router");
 const itemService = require("../services/itemService");
+const monsterService = require("../services/monsterService");
 const itemTemplate = require("../templates/item/itemTemplate");
 const driverSerivce = require("../services/driverService");
 const backService = require("../services/backService");
@@ -144,14 +145,29 @@ function classify(items) {
  * @param {Context} context
  * @param {Object} item
  */
-function showItem(context, item) {
+async function showItem(context, item) {
+  const { id } = item;
   let response = Object.keys(item)
     .filter(key => item[key])
     .map(key => {
       return `${i18n.__(`item.${key}`)}：${item[key]}`;
     });
 
-  return context.replyText(response.join("\n").replace(/\\n+/g, "\n"));
+  // 回覆物品基本資訊
+  context.replyText(response.join("\n").replace(/\\n+/g, "\n"));
+
+  // 查詢掉落此物品的怪物
+  try {
+    const monsters = await monsterService.findByDropItem(id);
+    if (monsters.length > 0) {
+      const monsterNames = monsters
+        .map(monster => `${monster.name}(Lv.${monster.level})`)
+        .join("、");
+      context.replyText(`掉落怪物：${monsterNames}`);
+    }
+  } catch (error) {
+    console.error("查詢掉落怪物失敗:", error);
+  }
 }
 
 /**
@@ -174,6 +190,19 @@ async function showMedia(context, target) {
 
   bubbles.push(itemTemplate.genAttributeBubble(rows));
   context.replyFlex(target.name, { type: "carousel", contents: bubbles });
+
+  // 查詢掉落此物品的怪物
+  try {
+    const monsters = await monsterService.findByDropItem(target.id);
+    if (monsters.length > 0) {
+      const monsterNames = monsters
+        .map(monster => `${monster.name}(Lv.${monster.level})`)
+        .join("、");
+      context.replyText(`掉落怪物：${monsterNames}`);
+    }
+  } catch (error) {
+    console.error("查詢掉落怪物失敗:", error);
+  }
 }
 
 async function getSheetEquipData(target) {
