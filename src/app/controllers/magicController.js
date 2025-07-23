@@ -1,4 +1,3 @@
-const { Context } = require("bottender");
 const { text } = require("bottender/router");
 const magicService = require("../services/magicService");
 const i18n = require("../../utils/i18n");
@@ -21,9 +20,8 @@ exports.routes = [text(skillRegex, showSkill), text(/^\.?(skill|技能)\s/, sear
 /**
  * 技能搜尋
  * @param {Context} context
- * @param {import("bottender").Props} props
  */
-async function searchSkill(context, props) {
+async function searchSkill(context) {
   const params = context.event.message.text.split(/\s+/g);
   params.shift();
 

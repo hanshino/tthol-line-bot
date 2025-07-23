@@ -15,3 +15,11 @@ exports.getColumnNames = () => {
 exports.search = (filter, sort) => {
   return monsterRepo.search(filter, sort);
 };
+
+exports.findMonster = id => {
+  return monsterRepo.findMonster(id);
+};
+
+exports.findByDropItem = (itemId, sort) => {
+  return monsterRepo.findByDropItem(itemId, sort);
+};

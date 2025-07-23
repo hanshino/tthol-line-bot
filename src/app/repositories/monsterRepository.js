@@ -1,4 +1,4 @@
-const monster = require("../models/monster");
+const { monster, npc } = require("../models/monster");
 const memory = require("memory-cache");
 
 /**
@@ -9,7 +9,7 @@ const memory = require("memory-cache");
  * @returns {Promise<Array>}
  */
 exports.searchByName = (name, strict = false, filter) => {
-  let query = monster()
+  let query = npc()
     .select("*")
     .where("name", strict ? "=" : "like", `%${name}%`)
     .orderBy("level", "asc");
@@ -24,11 +24,19 @@ exports.searchByName = (name, strict = false, filter) => {
 };
 
 /**
- * 直接透過id查詢怪物
+ * 直接透過id查詢怪物 (npc)
  * @param {Number} id
  * @returns {Promise<Object>}
  */
 exports.find = id => {
+  return npc().first("*").where("id", "=", id);
+};
+
+/**
+ * 直接透過id查詢怪物 (monster)
+ * @returns {Promise<Array>}
+ */
+exports.findMonster = id => {
   return monster().first("*").where("id", "=", id);
 };
 
@@ -36,7 +44,7 @@ exports.getColumnNames = async () => {
   let data = memory.get("MONSTER_COLUMNS");
   if (data) return data;
 
-  let names = await monster()
+  let names = await npc()
     .first("*")
     .then(res => Object.keys(res));
 
@@ -52,7 +60,7 @@ exports.getColumnNames = async () => {
  * @param {Array<{key: String, value, operation: String, in: Array}>} filter.attributes
  */
 exports.search = (filter, sort = {}) => {
-  let query = monster().select("*");
+  let query = npc().select("*");
 
   if (sort.orderBy) {
     query.orderBy(sort.orderBy, sort.order || "desc");
@@ -66,6 +74,26 @@ exports.search = (filter, sort = {}) => {
         query.where(attr.key, attr.operation || "=", attr.value);
       }
     });
+  }
+
+  return query;
+};
+
+/**
+ * 搜尋掉落物品包含指定 item id 的怪物
+ * @param {Number|String} itemId 物品 ID
+ * @param {Object} sort 排序選項
+ * @returns {Promise<Array>}
+ */
+exports.findByDropItem = (itemId, sort = {}) => {
+  let query = monster()
+    .select("*")
+    .whereRaw("JSON_SEARCH(drop_item, 'one', ?) IS NOT NULL", [String(itemId)]);
+
+  if (sort.orderBy) {
+    query.orderBy(sort.orderBy, sort.order || "desc");
+  } else {
+    query.orderBy("level", "asc");
   }
 
   return query;

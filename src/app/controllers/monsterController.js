@@ -1,5 +1,6 @@
 const { text } = require("bottender/router");
 const monsterService = require("../services/monsterService");
+const itemService = require("../services/itemService");
 const monsterTemplate = require("../templates/monsterTemplate");
 const i18n = require("../../utils/i18n");
 
@@ -50,7 +51,27 @@ async function searchMonsterId(context, props) {
   return showResult(context, target);
 }
 
-function showResult(context, target) {
+async function showResult(context, target) {
+  const { id } = target;
+  const monster = await monsterService.findMonster(id);
+
+  // 處理掉落物品
+  let dropItems = "";
+  if (monster && monster.drop_item) {
+    try {
+      const dropItemIds = JSON.parse(monster.drop_item);
+      if (Array.isArray(dropItemIds) && dropItemIds.length > 0) {
+        const items = await itemService.getAllById(dropItemIds);
+        dropItems = items
+          .map(item => item.name)
+          .filter(name => name)
+          .join("、");
+      }
+    } catch (error) {
+      console.error("解析 drop_item JSON 失敗:", error);
+    }
+  }
+
   let classify = [
     {
       title: "基本屬性",
@@ -92,6 +113,11 @@ function showResult(context, target) {
   );
 
   context.replyFlex(target.name, { type: "carousel", contents: bubbles });
+
+  // 如果有掉落物品，單獨回覆文字訊息
+  if (dropItems) {
+    context.replyText(`掉落物品：${dropItems}`);
+  }
 }
 
 /**
