@@ -2,6 +2,8 @@
  * 測試機率正規化功能
  */
 
+const { formatRandomAttributes: baseFormatRandomAttributes } = require("../src/utils/itemUtils");
+
 // 模擬 i18n 函數
 const mockI18n = {
   __: key => {
@@ -19,7 +21,7 @@ const mockI18n = {
 };
 
 /**
- * 格式化隨機素質顯示文字
+ * 格式化隨機素質顯示文字（帶 i18n 支援的測試版本）
  * @param {Array} randomAttributes 隨機素質陣列
  * @returns {string} 格式化後的文字
  */

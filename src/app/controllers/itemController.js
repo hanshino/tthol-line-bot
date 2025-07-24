@@ -6,6 +6,7 @@ const monsterService = require("../services/monsterService");
 const itemTemplate = require("../templates/item/itemTemplate");
 const driverSerivce = require("../services/driverService");
 const backService = require("../services/backService");
+const { formatRandomAttributes } = require("../../utils/itemUtils");
 const mediaList = ["背飾", "座騎"];
 const skipKeys = ["id", "name", "note", "type", "picture", "summary", "src"];
 const weighted = require("../../configs/weighted.config");
@@ -138,34 +139,6 @@ function classify(items) {
   });
 
   return result;
-}
-
-/**
- * 格式化隨機素質顯示文字
- * @param {Array} randomAttributes 隨機素質陣列
- * @returns {string} 格式化後的文字
- */
-function formatRandomAttributes(randomAttributes) {
-  if (randomAttributes.length === 0) return "";
-
-  // 計算總機率用於換算成100%
-  const totalRate = randomAttributes.reduce((sum, rand) => sum + rand.rate, 0);
-
-  const randText = randomAttributes
-    .map(rand => {
-      const attributeName = rand.attribute;
-      // 換算成100%基準的機率
-      const normalizedRate = totalRate > 0 ? Math.round((rand.rate / totalRate) * 100) : 0;
-
-      if (rand.min === rand.max) {
-        return `${attributeName}：${rand.min} (${normalizedRate}%)`;
-      } else {
-        return `${attributeName}：${rand.min}~${rand.max} (${normalizedRate}%)`;
-      }
-    })
-    .join("\n");
-
-  return `隨機素質：\n${randText}`;
 }
 
 /**
@@ -483,7 +456,7 @@ async function showRanking(context, props) {
   attrs.forEach(attr => {
     // 不符合 XX*YY 的格式 即略過
     if (/^\S{1,2}(\*\d{1,2})?$/.test(attr) === false) return;
-    let name = attr.replace(/[\d*]+/, "");
+    let name = attr.replace(/[\d\*]+/, "");
     let value = attr.replace(/\D+/, "") || "1";
     let col = columns.find(col => col.note.indexOf(name) !== -1);
     if (!col) return;
