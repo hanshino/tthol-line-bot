@@ -1,11 +1,12 @@
 const i18n = require("../../utils/i18n");
-const { Context } = require("bottender");
 const { text, route } = require("bottender/router");
 const itemService = require("../services/itemService");
+const itemRandService = require("../services/itemRandService");
 const monsterService = require("../services/monsterService");
 const itemTemplate = require("../templates/item/itemTemplate");
 const driverSerivce = require("../services/driverService");
 const backService = require("../services/backService");
+const { formatRandomAttributes } = require("../../utils/itemUtils");
 const mediaList = ["背飾", "座騎"];
 const skipKeys = ["id", "name", "note", "type", "picture", "summary", "src"];
 const weighted = require("../../configs/weighted.config");
@@ -78,7 +79,7 @@ async function searchItemId(context, props) {
 /**
  * 物品查詢
  *
- * @param {Context} context
+ * @param {import("bottender").LineContext} context
  * @param {import("bottender").Props} props
  */
 async function searchItem(context, props) {
@@ -142,7 +143,7 @@ function classify(items) {
 
 /**
  * 一般物品的顯示
- * @param {Context} context
+ * @param {import("bottender").LineContext} context
  * @param {Object} item
  */
 async function showItem(context, item) {
@@ -155,6 +156,17 @@ async function showItem(context, item) {
 
   // 回覆物品基本資訊
   context.replyText(response.join("\n").replace(/\\n+/g, "\n"));
+
+  // 查詢物品隨機素質
+  try {
+    const randomAttributes = await itemRandService.getByItemId(id);
+    if (randomAttributes.length > 0) {
+      const randText = formatRandomAttributes(randomAttributes);
+      context.replyText(randText);
+    }
+  } catch (error) {
+    console.error("查詢隨機素質失敗:", error);
+  }
 
   // 查詢掉落此物品的怪物
   try {
@@ -172,7 +184,7 @@ async function showItem(context, item) {
 
 /**
  * 裝備有圖片的話，進行`flex`顯示
- * @param {Context} context
+ * @param {import("bottender").LineContext} context
  * @param {Object} target
  */
 async function showMedia(context, target) {
@@ -190,6 +202,17 @@ async function showMedia(context, target) {
 
   bubbles.push(itemTemplate.genAttributeBubble(rows));
   context.replyFlex(target.name, { type: "carousel", contents: bubbles });
+
+  // 查詢物品隨機素質
+  try {
+    const randomAttributes = await itemRandService.getByItemId(target.id);
+    if (randomAttributes.length > 0) {
+      const randText = formatRandomAttributes(randomAttributes);
+      context.replyText(randText);
+    }
+  } catch (error) {
+    console.error("查詢隨機素質失敗:", error);
+  }
 
   // 查詢掉落此物品的怪物
   try {
@@ -270,7 +293,7 @@ async function isFilter(context) {
 
 /**
  * 裝備比較
- * @param {Context} context
+ * @param {import("bottender").LineContext} context
  * @param {import("bottender").Props} props
  */
 async function equipCompare(context, props) {
@@ -416,7 +439,7 @@ async function getSheetPicture(target) {
 
 /**
  * 顯示加權排行榜
- * @param {Context} context
+ * @param {import("bottender").LineContext} context
  * @param {import("bottender").Props} props
  */
 async function showRanking(context, props) {
@@ -470,7 +493,7 @@ async function showRanking(context, props) {
 
 /**
  * 看看是否為別名指令
- * @param {Context} context
+ * @param {import("bottender").LineContext} context
  */
 function isAlias(context) {
   if (!context.event.isText) return false;
