@@ -1,4 +1,3 @@
-const { Context } = require("bottender");
 const { text } = require("bottender/router");
 const questTemplate = require("../templates/questTemplate");
 
@@ -13,7 +12,7 @@ exports.routes = [
 
 /**
  * 九宮格解謎
- * @param {Context} context
+ * @param {import("bottender").LineContext} context
  * @param {Object} props
  */
 function ForestMatrix(context, props) {
@@ -149,7 +148,7 @@ function isFinish(matrix) {
 
 /**
  * 七星隱藏關卡解謎
- * @param {Context} context
+ * @param {import("bottender").LineContext} context
  * @param {Object} props
  */
 function SevenStar(context, props) {
@@ -275,7 +274,7 @@ function getGodQuestResult(sum, leak) {
 
 /**
  * 神武禁地
- * @param {Context} context
+ * @param {import("bottender").LineContext} context
  * @param {import("bottender").Props} props
  */
 function GodQuest(context, props) {

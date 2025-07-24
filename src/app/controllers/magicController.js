@@ -19,7 +19,7 @@ exports.routes = [text(skillRegex, showSkill), text(/^\.?(skill|技能)\s/, sear
 
 /**
  * 技能搜尋
- * @param {Context} context
+ * @param {import("bottender").LineContext} context
  */
 async function searchSkill(context) {
   const params = context.event.message.text.split(/\s+/g);

@@ -122,7 +122,7 @@ async function showResult(context, target) {
 
 /**
  * 查找怪物
- * @param {Context} context
+ * @param {import("bottender").LineContext} context
  * @param {import("bottender").Props} props
  */
 async function searchMonster(context, props) {
@@ -142,7 +142,7 @@ async function searchMonster(context, props) {
 
 /**
  * 傳送查詢結果
- * @param {Context} context
+ * @param {import("bottender").LineContext} context
  * @param {Array} monsters
  */
 async function showMultiResult(context, monsters) {

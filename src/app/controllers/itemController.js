@@ -1,5 +1,4 @@
 const i18n = require("../../utils/i18n");
-const { Context } = require("bottender");
 const { text, route } = require("bottender/router");
 const itemService = require("../services/itemService");
 const monsterService = require("../services/monsterService");
@@ -78,7 +77,7 @@ async function searchItemId(context, props) {
 /**
  * 物品查詢
  *
- * @param {Context} context
+ * @param {import("bottender").LineContext} context
  * @param {import("bottender").Props} props
  */
 async function searchItem(context, props) {
@@ -142,7 +141,7 @@ function classify(items) {
 
 /**
  * 一般物品的顯示
- * @param {Context} context
+ * @param {import("bottender").LineContext} context
  * @param {Object} item
  */
 async function showItem(context, item) {
@@ -172,7 +171,7 @@ async function showItem(context, item) {
 
 /**
  * 裝備有圖片的話，進行`flex`顯示
- * @param {Context} context
+ * @param {import("bottender").LineContext} context
  * @param {Object} target
  */
 async function showMedia(context, target) {
@@ -270,7 +269,7 @@ async function isFilter(context) {
 
 /**
  * 裝備比較
- * @param {Context} context
+ * @param {import("bottender").LineContext} context
  * @param {import("bottender").Props} props
  */
 async function equipCompare(context, props) {
@@ -416,7 +415,7 @@ async function getSheetPicture(target) {
 
 /**
  * 顯示加權排行榜
- * @param {Context} context
+ * @param {import("bottender").LineContext} context
  * @param {import("bottender").Props} props
  */
 async function showRanking(context, props) {
@@ -433,7 +432,7 @@ async function showRanking(context, props) {
   attrs.forEach(attr => {
     // 不符合 XX*YY 的格式 即略過
     if (/^\S{1,2}(\*\d{1,2})?$/.test(attr) === false) return;
-    let name = attr.replace(/[\d\*]+/, "");
+    let name = attr.replace(/[\d*]+/, "");
     let value = attr.replace(/\D+/, "") || "1";
     let col = columns.find(col => col.note.indexOf(name) !== -1);
     if (!col) return;
@@ -470,7 +469,7 @@ async function showRanking(context, props) {
 
 /**
  * 看看是否為別名指令
- * @param {Context} context
+ * @param {import("bottender").LineContext} context
  */
 function isAlias(context) {
   if (!context.event.isText) return false;

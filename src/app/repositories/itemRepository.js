@@ -112,5 +112,9 @@ exports.getAllById = (ids, filter = {}, sort = {}) => {
     query.orderBy(sort.orderBy, sort.order || "desc");
   }
 
+  if (filter) {
+    // todo
+  }
+
   return query;
 };
