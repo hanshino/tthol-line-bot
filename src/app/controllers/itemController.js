@@ -152,7 +152,8 @@ async function showItem(context, item) {
     .filter(key => item[key])
     .map(key => {
       return `${i18n.__(`item.${key}`)}：${item[key]}`;
-    });
+    })
+    .filter(key => key.startsWith("item."));
 
   // 回覆物品基本資訊
   context.replyText(response.join("\n").replace(/\\n+/g, "\n"));
