@@ -153,7 +153,7 @@ async function showItem(context, item) {
     .map(key => {
       return `${i18n.__(`item.${key}`)}：${item[key]}`;
     })
-    .filter(key => key.startsWith("item."));
+    .filter(key => key.startsWith("item.") === false); // 只顯示有對應翻譯的屬性
 
   // 回覆物品基本資訊
   context.replyText(response.join("\n").replace(/\\n+/g, "\n"));
@@ -199,7 +199,7 @@ async function showMedia(context, target) {
 
   let rows = Object.keys(target)
     .filter(key => target[key] && !skipKeys.includes(key))
-    .filter(key => i18n.__("item." + key).startsWith("item.")) // 只顯示有對應翻譯的屬性
+    .filter(key => i18n.__("item." + key).startsWith("item.") === false) // 只顯示有對應翻譯的屬性
     .map(key => itemTemplate.genAttributeRow(i18n.__("item." + key), target[key]));
 
   bubbles.push(itemTemplate.genAttributeBubble(rows));
