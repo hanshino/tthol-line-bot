@@ -199,6 +199,7 @@ async function showMedia(context, target) {
 
   let rows = Object.keys(target)
     .filter(key => target[key] && !skipKeys.includes(key))
+    .filter(key => i18n.__("item." + key).startsWith("item.")) // 只顯示有對應翻譯的屬性
     .map(key => itemTemplate.genAttributeRow(i18n.__("item." + key), target[key]));
 
   bubbles.push(itemTemplate.genAttributeBubble(rows));
