@@ -15,11 +15,11 @@ module.exports = [
         value: 1,
       },
       {
-        key: "def",
+        key: "extra_def",
         value: 0.5,
       },
       {
-        key: "mdef",
+        key: "magic_def",
         value: 0.25,
       },
     ],
@@ -44,11 +44,11 @@ module.exports = [
         value: 1,
       },
       {
-        key: "def",
+        key: "extra_def",
         value: 0.5,
       },
       {
-        key: "mdef",
+        key: "magic_def",
         value: 0.5,
       },
     ],
@@ -73,11 +73,11 @@ module.exports = [
         value: 1,
       },
       {
-        key: "def",
+        key: "extra_def",
         value: 0.5,
       },
       {
-        key: "mdef",
+        key: "magic_def",
         value: 0.5,
       },
     ],
@@ -106,11 +106,11 @@ module.exports = [
         value: 1,
       },
       {
-        key: "def",
+        key: "extra_def",
         value: 0.5,
       },
       {
-        key: "mdef",
+        key: "magic_def",
         value: 0.25,
       },
     ],
@@ -139,11 +139,11 @@ module.exports = [
         value: 1,
       },
       {
-        key: "def",
+        key: "extra_def",
         value: 0.5,
       },
       {
-        key: "mdef",
+        key: "magic_def",
         value: 0.5,
       },
     ],
@@ -160,15 +160,15 @@ module.exports = [
         value: 7,
       },
       {
-        key: "critical",
+        key: "critical_hit",
         value: 5,
       },
       {
-        key: "def",
+        key: "extra_def",
         value: 0.75,
       },
       {
-        key: "mdef",
+        key: "magic_def",
         value: 0.75,
       },
     ],

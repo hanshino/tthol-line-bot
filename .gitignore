@@ -65,3 +65,6 @@ typings/
 # Ide files
 .idea
 .vscode
+
+# oh my claudecode
+.omc/**

@@ -9,6 +9,35 @@ const backService = require("../services/backService");
 const { formatRandomAttributes } = require("../../utils/itemUtils");
 const mediaList = ["背飾", "座騎"];
 const skipKeys = ["id", "name", "note", "type", "picture", "summary", "src"];
+// 可比較/加權的數值屬性白名單（新 schema 有近 80 欄，不能再用黑名單過濾）。
+const STAT_KEYS = [
+  "hp",
+  "mp",
+  "str",
+  "pow",
+  "vit",
+  "dex",
+  "agi",
+  "wis",
+  "atk",
+  "matk",
+  "extra_def",
+  "magic_def",
+  "dodge",
+  "uncanny_dodge",
+  "critical_hit",
+  "hit",
+  "attack_speed",
+  "walk_speed",
+  "fire_def",
+  "water_def",
+  "lightning_def",
+  "wood_def",
+  "damage_min",
+  "damage_max",
+  "pdamage_min",
+  "pdamage_max",
+];
 const weighted = require("../../configs/weighted.config");
 const alias = [
   { origin: /^\.?(外功?[坐座]騎)$/, to: ".driverrank 外*11 物 技*3 命", type: "座騎" },
@@ -354,10 +383,10 @@ async function equipCompare(context, props) {
   let bubbles = [];
 
   diff.forEach((equip, index) => {
-    if (!equip.src) return;
-
-    // 插入圖片bubble
-    bubbles.push(itemTemplate.genImageBubble(equip.name, equip.src));
+    // 有圖才插圖片bubble（帽/衣/飾品無圖仍要顯示比較表，避免送出空 carousel 被 LINE 退回）
+    if (equip.src) {
+      bubbles.push(itemTemplate.genImageBubble(equip.name, equip.src));
+    }
 
     // 插入比較表
     bubbles.push(
@@ -383,6 +412,10 @@ async function equipCompare(context, props) {
     );
   });
 
+  if (bubbles.length === 0) {
+    return context.replyText("查無可比較的資料");
+  }
+
   context.replyFlex("比較結果", { type: "carousel", contents: bubbles });
 }
 
@@ -392,16 +425,8 @@ async function equipCompare(context, props) {
  * @param {Object} b
  */
 function equipDiff(a, b) {
-  let skipKeys = ["id", "name", "note", "type", "summary", "level", "weight", "picture"];
-  let aAttributes = Object.keys(a);
-  let bAttributes = Object.keys(b);
-
-  let totalAttributes = [
-    ...new Set([
-      ...aAttributes.filter(key => a[key] && !skipKeys.includes(key)),
-      ...bAttributes.filter(key => b[key] && !skipKeys.includes(key)),
-    ]),
-  ].sort((a, b) => aAttributes.indexOf(a) - aAttributes.indexOf(b)); // 按照原本屬性進行排序處理
+  // 只取兩件裝備任一有值的數值屬性，順序沿用 STAT_KEYS
+  let totalAttributes = STAT_KEYS.filter(key => a[key] || b[key]);
 
   let result = [
     { equip: a, compare: b },
@@ -411,7 +436,7 @@ function equipDiff(a, b) {
 
     let temp = { name: equip.name, type: equip.type };
     totalAttributes.forEach(attr => {
-      temp[attr] = equip[attr] - compare[attr];
+      temp[attr] = (equip[attr] || 0) - (compare[attr] || 0);
     });
 
     return temp;
