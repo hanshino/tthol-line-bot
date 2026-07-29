@@ -177,14 +177,18 @@ exports.genHeroIdentityBubble = (item, heroImageUrl, iconUrl) => {
       aspectMode: "cover",
     },
     body: {
+      // 整個 body 底色改成淺色（card），朱紅色只鎖在下面 identity 這個獨立區塊內，
+      // 不會因為內容高度不足而讓 body 預設色（朱紅）從下方露出——
+      // meta 與 flavor 之後都自然落在這層淺色底上。
       type: "box",
       layout: "vertical",
-      backgroundColor: COLORS.primary,
+      backgroundColor: COLORS.card,
       paddingAll: "0px",
       contents: [
         {
           type: "box",
           layout: "horizontal",
+          backgroundColor: COLORS.primary,
           paddingTop: "12px",
           paddingBottom: "10px",
           paddingStart: "16px",
@@ -196,43 +200,30 @@ exports.genHeroIdentityBubble = (item, heroImageUrl, iconUrl) => {
         {
           type: "box",
           layout: "vertical",
-          paddingTop: "0px",
-          paddingBottom: "14px",
+          paddingTop: "12px",
+          paddingBottom: flavor(item) ? "8px" : "14px",
           paddingStart: "16px",
           paddingEnd: "16px",
           spacing: "xs",
-          contents: metaContents(item),
+          contents: metaContents(item, COLORS.muted),
         },
         ...(flavor(item)
           ? [
               {
-                // Full-width card-coloured band at the bottom of the cinnabar body.
-                // Edge-to-edge (paddingAll "0px") so it reads as a clean section break
-                // rather than a floating rectangle inside the red — no cornerRadius needed.
-                // Text color switches to COLORS.muted on the light background, matching
-                // the flavor treatment in genStatsBubble/genIconHeaderBubble.
                 type: "box",
                 layout: "vertical",
-                backgroundColor: COLORS.card,
-                paddingAll: "0px",
+                paddingTop: "0px",
+                paddingBottom: "14px",
+                paddingStart: "16px",
+                paddingEnd: "16px",
                 contents: [
                   {
-                    type: "box",
-                    layout: "vertical",
-                    paddingTop: "12px",
-                    paddingBottom: "14px",
-                    paddingStart: "16px",
-                    paddingEnd: "16px",
-                    contents: [
-                      {
-                        type: "text",
-                        text: flavor(item),
-                        color: COLORS.muted,
-                        size: "xs",
-                        wrap: true,
-                        lineSpacing: "6px",
-                      },
-                    ],
+                    type: "text",
+                    text: flavor(item),
+                    color: COLORS.muted,
+                    size: "xs",
+                    wrap: true,
+                    lineSpacing: "6px",
                   },
                 ],
               },
