@@ -35,7 +35,8 @@ function statColor(key) {
 // 避免單列塞太多欄位而爆版。
 const META_ROW_CHUNK_SIZE = 3;
 
-function metaContents(item) {
+function metaContents(item, color) {
+  const textColor = color || COLORS.card;
   const parts = [
     `#${item.id}`,
     item.base_lv && `等級 ${item.base_lv}`,
@@ -56,7 +57,7 @@ function metaContents(item) {
     contents: row.map(text => ({
       type: "text",
       text,
-      color: COLORS.card,
+      color: textColor,
       size: "xs",
       flex: 0,
     })),
@@ -182,44 +183,41 @@ exports.genHeroIdentityBubble = (item, heroImageUrl, iconUrl) => {
       backgroundColor: COLORS.primary,
       paddingAll: "0px",
       contents: [
+        // Cinnabar zone: icon + name + type badge only
         {
           type: "box",
           layout: "horizontal",
           paddingTop: "12px",
-          paddingBottom: "10px",
+          paddingBottom: "12px",
           paddingStart: "16px",
           paddingEnd: "16px",
           alignItems: "center",
           spacing: "md",
           contents: identity,
         },
+        // Light zone: meta chips + flavor text in one seamless card-coloured block
         {
           type: "box",
           layout: "vertical",
-          paddingTop: "0px",
-          paddingBottom: "14px",
-          paddingStart: "16px",
-          paddingEnd: "16px",
-          spacing: "xs",
-          contents: metaContents(item),
-        },
-        ...(flavor(item)
-          ? [
-              {
-                // Full-width card-coloured band at the bottom of the cinnabar body.
-                // Edge-to-edge (paddingAll "0px") so it reads as a clean section break
-                // rather than a floating rectangle inside the red — no cornerRadius needed.
-                // Text color switches to COLORS.muted on the light background, matching
-                // the flavor treatment in genStatsBubble/genIconHeaderBubble.
-                type: "box",
-                layout: "vertical",
-                backgroundColor: COLORS.card,
-                paddingAll: "0px",
-                contents: [
+          backgroundColor: COLORS.card,
+          paddingAll: "0px",
+          contents: [
+            {
+              type: "box",
+              layout: "vertical",
+              paddingTop: "12px",
+              paddingBottom: flavor(item) ? "8px" : "14px",
+              paddingStart: "16px",
+              paddingEnd: "16px",
+              spacing: "xs",
+              contents: metaContents(item, COLORS.muted),
+            },
+            ...(flavor(item)
+              ? [
                   {
                     type: "box",
                     layout: "vertical",
-                    paddingTop: "12px",
+                    paddingTop: "0px",
                     paddingBottom: "14px",
                     paddingStart: "16px",
                     paddingEnd: "16px",
@@ -234,10 +232,10 @@ exports.genHeroIdentityBubble = (item, heroImageUrl, iconUrl) => {
                       },
                     ],
                   },
-                ],
-              },
-            ]
-          : []),
+                ]
+              : []),
+          ],
+        },
       ],
     },
   };
