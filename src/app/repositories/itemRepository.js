@@ -1,4 +1,5 @@
 const item = require("../models/item");
+const itemImage = require("../models/itemImage");
 const memory = require("memory-cache");
 
 // 中文類型 → 新 schema 過濾條件。
@@ -146,4 +147,15 @@ exports.getAllById = async (ids, filter = {}, sort = {}) => {
   }
 
   return decorate(await query);
+};
+
+/**
+ * 取得物品的小圖示（icon 優先，沒有則退回 gicon）
+ * @param {number} id
+ * @returns {Promise<string|null>}
+ */
+exports.getIconUrl = async id => {
+  const rows = await itemImage().select("kind", "url").where("item_id", "=", id);
+  const icon = rows.find(r => r.kind === "icon") || rows.find(r => r.kind === "gicon");
+  return icon ? icon.url : null;
 };

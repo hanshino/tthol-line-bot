@@ -25,3 +25,5 @@ exports.getColumns = () => {
 exports.getAllById = (ids, filter = {}, sort = {}) => {
   return itemRepo.getAllById(ids, filter, sort);
 };
+
+exports.getIconUrl = id => itemRepo.getIconUrl(id);

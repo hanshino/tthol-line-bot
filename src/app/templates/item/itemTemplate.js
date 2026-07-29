@@ -1,3 +1,388 @@
+const COLORS = {
+  primary: "#b6322d",
+  background: "#f9f6f1",
+  card: "#fcfaf6",
+  ink: "#171b22",
+  muted: "#585e68",
+  border: "#dbd7cf",
+  celadon: "#54967a",
+  indigo: "#2c6194",
+  plum: "#744c7d",
+};
+
+function statColor(key) {
+  if (
+    [
+      "atk",
+      "matk",
+      "damage_min",
+      "damage_max",
+      "pdamage_min",
+      "pdamage_max",
+      "critical_hit",
+    ].includes(key)
+  )
+    return COLORS.primary;
+  if (["walk_speed", "run_speed", "attack_speed", "agi"].includes(key)) return COLORS.celadon;
+  if (["mp", "wis", "hit", "dodge"].includes(key)) return COLORS.indigo;
+  if (["magic_def", "pow", "uncanny_dodge"].includes(key)) return COLORS.plum;
+  return COLORS.ink;
+}
+
+// 每個 meta 欄位長度不一（例如「售價 9800」比「#50」長很多），若全部塞進同一個
+// horizontal box，沒指定 flex 的 text 預設 flex:1 會被平均切版、長字串直接被截斷成「...」。
+// 這裡改成 flex:0（依內容自身寬度顯示，不被平分), 並依內容數量切成多列 horizontal box，
+// 避免單列塞太多欄位而爆版。
+const META_ROW_CHUNK_SIZE = 3;
+
+function metaContents(item) {
+  const parts = [
+    `#${item.id}`,
+    item.base_lv && `等級 ${item.base_lv}`,
+    item.weight && `重量 ${item.weight}`,
+    item.value > 0 && `售價 ${item.value}`,
+    item.durability > 0 && `耐久 ${item.durability}`,
+  ].filter(Boolean);
+
+  const rows = [];
+  for (let i = 0; i < parts.length; i += META_ROW_CHUNK_SIZE) {
+    rows.push(parts.slice(i, i + META_ROW_CHUNK_SIZE));
+  }
+
+  return rows.map(row => ({
+    type: "box",
+    layout: "horizontal",
+    spacing: "lg",
+    contents: row.map(text => ({
+      type: "text",
+      text,
+      color: COLORS.card,
+      size: "xs",
+      flex: 0,
+    })),
+  }));
+}
+
+function typeBadge(type) {
+  return {
+    type: "box",
+    layout: "vertical",
+    backgroundColor: COLORS.card,
+    cornerRadius: "20px",
+    paddingTop: "3px",
+    paddingBottom: "3px",
+    paddingStart: "10px",
+    paddingEnd: "10px",
+    contents: [
+      {
+        type: "text",
+        text: `${type || ""}`,
+        color: COLORS.primary,
+        size: "xs",
+        weight: "bold",
+        align: "center",
+      },
+    ],
+  };
+}
+
+function iconTile(url, size) {
+  return {
+    type: "box",
+    layout: "vertical",
+    backgroundColor: COLORS.background,
+    cornerRadius: "8px",
+    width: size,
+    height: size,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingAll: "2px",
+    contents: [{ type: "image", url, size: "full", aspectMode: "fit", aspectRatio: "1:1" }],
+  };
+}
+
+function sectionTitle(padded = true) {
+  return {
+    type: "box",
+    layout: "horizontal",
+    ...(padded
+      ? { paddingStart: "16px", paddingEnd: "16px", paddingTop: "6px" }
+      : { paddingTop: "4px" }),
+    paddingBottom: "8px",
+    alignItems: "center",
+    contents: [
+      {
+        type: "box",
+        layout: "vertical",
+        width: "3px",
+        height: "14px",
+        backgroundColor: COLORS.primary,
+        cornerRadius: "2px",
+        contents: [],
+      },
+      { type: "text", text: "屬性", color: COLORS.ink, size: "sm", weight: "bold", margin: "md" },
+    ],
+  };
+}
+
+function flavor(item) {
+  return `${item.note || item.summary || ""}`.replace(/\\n+/g, "\n");
+}
+
+exports.statColor = statColor;
+
+exports.genStatRow = (label, value, color) => ({
+  type: "box",
+  layout: "horizontal",
+  paddingTop: "8px",
+  paddingBottom: "8px",
+  paddingStart: "12px",
+  paddingEnd: "12px",
+  contents: [
+    { type: "text", text: `${label}`, color: COLORS.muted, size: "xs", flex: 3 },
+    {
+      type: "text",
+      text: `${value}`,
+      color: color || COLORS.ink,
+      size: "sm",
+      weight: "bold",
+      align: "end",
+      flex: 2,
+    },
+  ],
+});
+
+exports.genHeroIdentityBubble = (item, heroImageUrl, iconUrl) => {
+  const identity = [
+    iconUrl && iconTile(iconUrl, "36px"),
+    {
+      type: "text",
+      text: `${item.name || ""}`,
+      color: COLORS.card,
+      size: "xl",
+      weight: "bold",
+      flex: 1,
+      wrap: true,
+    },
+    typeBadge(item.type),
+  ].filter(Boolean);
+  return {
+    type: "bubble",
+    size: "mega",
+    hero: {
+      type: "image",
+      url: heroImageUrl,
+      size: "full",
+      aspectRatio: "4:3",
+      aspectMode: "cover",
+    },
+    body: {
+      type: "box",
+      layout: "vertical",
+      backgroundColor: COLORS.primary,
+      paddingAll: "0px",
+      contents: [
+        {
+          type: "box",
+          layout: "horizontal",
+          paddingTop: "12px",
+          paddingBottom: "10px",
+          paddingStart: "16px",
+          paddingEnd: "16px",
+          alignItems: "center",
+          spacing: "md",
+          contents: identity,
+        },
+        {
+          type: "box",
+          layout: "vertical",
+          paddingTop: "0px",
+          paddingBottom: "14px",
+          paddingStart: "16px",
+          paddingEnd: "16px",
+          spacing: "xs",
+          contents: metaContents(item),
+        },
+      ],
+    },
+  };
+};
+
+exports.genStatsBubble = (item, rows) => ({
+  type: "bubble",
+  size: "mega",
+  body: {
+    type: "box",
+    layout: "vertical",
+    backgroundColor: COLORS.card,
+    paddingAll: "0px",
+    contents: [
+      {
+        type: "box",
+        layout: "vertical",
+        backgroundColor: COLORS.primary,
+        paddingTop: "14px",
+        paddingBottom: "14px",
+        paddingStart: "16px",
+        paddingEnd: "16px",
+        contents: [
+          {
+            type: "text",
+            text: `${item.name || ""}`,
+            color: COLORS.card,
+            size: "sm",
+            weight: "bold",
+          },
+        ],
+      },
+      {
+        type: "box",
+        layout: "vertical",
+        paddingStart: "16px",
+        paddingEnd: "16px",
+        paddingTop: "14px",
+        paddingBottom: "10px",
+        contents: [
+          {
+            type: "text",
+            text: flavor(item),
+            color: COLORS.muted,
+            size: "xs",
+            wrap: true,
+            lineSpacing: "6px",
+          },
+        ],
+      },
+      sectionTitle(),
+      {
+        type: "box",
+        layout: "vertical",
+        paddingStart: "16px",
+        paddingEnd: "16px",
+        paddingBottom: "16px",
+        spacing: "none",
+        contents: rows.map((row, idx) => ({
+          type: "box",
+          layout: "vertical",
+          backgroundColor: idx % 2 === 0 ? COLORS.background : COLORS.card,
+          paddingAll: "0px",
+          contents: [row],
+        })),
+      },
+    ],
+  },
+});
+
+exports.genIconHeaderBubble = (item, iconUrl, rows) => {
+  const header = [
+    iconUrl && iconTile(iconUrl, "44px"),
+    {
+      type: "box",
+      layout: "vertical",
+      flex: 1,
+      spacing: "sm",
+      contents: [
+        {
+          type: "box",
+          layout: "horizontal",
+          alignItems: "center",
+          spacing: "sm",
+          contents: [
+            {
+              type: "text",
+              text: `${item.name || ""}`,
+              color: COLORS.card,
+              size: "lg",
+              weight: "bold",
+              flex: 1,
+              wrap: true,
+            },
+            typeBadge(item.type),
+          ],
+        },
+        {
+          type: "box",
+          layout: "vertical",
+          spacing: "xs",
+          contents: metaContents(item),
+        },
+      ],
+    },
+  ].filter(Boolean);
+  const columns = [[], []];
+  rows.forEach((row, idx) => columns[idx % 2].push(row));
+  return {
+    type: "bubble",
+    size: "mega",
+    body: {
+      type: "box",
+      layout: "vertical",
+      backgroundColor: COLORS.card,
+      paddingAll: "0px",
+      contents: [
+        {
+          type: "box",
+          layout: "horizontal",
+          backgroundColor: COLORS.primary,
+          paddingTop: "14px",
+          paddingBottom: "12px",
+          paddingStart: "16px",
+          paddingEnd: "16px",
+          spacing: "md",
+          alignItems: "center",
+          contents: header,
+        },
+        {
+          type: "box",
+          layout: "vertical",
+          paddingStart: "16px",
+          paddingEnd: "16px",
+          paddingTop: "12px",
+          paddingBottom: "8px",
+          contents: [
+            {
+              type: "text",
+              text: flavor(item),
+              color: COLORS.muted,
+              size: "xs",
+              wrap: true,
+              lineSpacing: "6px",
+            },
+          ],
+        },
+        {
+          type: "box",
+          layout: "vertical",
+          paddingStart: "16px",
+          paddingEnd: "16px",
+          paddingTop: "4px",
+          paddingBottom: "16px",
+          contents: [
+            sectionTitle(false),
+            {
+              type: "box",
+              layout: "horizontal",
+              backgroundColor: COLORS.background,
+              borderColor: COLORS.border,
+              borderWidth: "1px",
+              cornerRadius: "8px",
+              paddingAll: "12px",
+              spacing: "none",
+              contents: columns.map(column => ({
+                type: "box",
+                layout: "vertical",
+                flex: 1,
+                spacing: "sm",
+                contents: column,
+              })),
+            },
+          ],
+        },
+      ],
+    },
+  };
+};
+
 /**
  * 取物品顯示的橫欄
  * @param {string} title 左邊標題

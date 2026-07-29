@@ -8,7 +8,10 @@ const driverSerivce = require("../services/driverService");
 const backService = require("../services/backService");
 const { formatRandomAttributes } = require("../../utils/itemUtils");
 const mediaList = ["背飾", "座騎"];
+const equipTypes = ["座騎", "背飾", "左飾", "中飾", "右飾", "帽", "衣"];
 const skipKeys = ["id", "name", "note", "type", "picture", "summary", "src"];
+// showMedia 的屬性欄已經在識別資訊列（metaContents）顯示過這些欄位，避免重複列出
+const metaKeys = ["base_lv", "weight", "value", "durability"];
 // 可比較/加權的數值屬性白名單（新 schema 有近 80 欄，不能再用黑名單過濾）。
 const STAT_KEYS = [
   "hp",
@@ -98,7 +101,7 @@ async function searchItemId(context, props) {
   }
 
   let [target] = result;
-  if (mediaList.includes(target.type)) {
+  if (equipTypes.includes(target.type)) {
     return showMedia(context, target);
   }
 
@@ -123,12 +126,14 @@ async function searchItem(context, props) {
 
   if (items.length === 1) {
     let [target] = items;
-    return mediaList.includes(target.type) ? showMedia(context, target) : showItem(context, target);
+    return equipTypes.includes(target.type)
+      ? showMedia(context, target)
+      : showItem(context, target);
   }
 
   let findResult = items.find(item => item.name === params[0]);
   if (findResult) {
-    return mediaList.includes(findResult.type)
+    return equipTypes.includes(findResult.type)
       ? showMedia(context, findResult)
       : showItem(context, findResult);
   }
@@ -218,20 +223,26 @@ async function showItem(context, item) {
  * @param {Object} target
  */
 async function showMedia(context, target) {
-  let src = await getSheetPicture(target);
+  const src = await getSheetPicture(target);
+  const iconUrl = await itemService.getIconUrl(target.id);
+  const rows = Object.keys(target)
+    .filter(key => target[key] && !skipKeys.includes(key) && !metaKeys.includes(key))
+    .filter(key => i18n.__("item." + key).startsWith("item.") === false) // 只顯示有對應翻譯的屬性
+    .map(key =>
+      itemTemplate.genStatRow(i18n.__("item." + key), target[key], itemTemplate.statColor(key))
+    );
 
-  if (!src) {
+  let bubbles;
+  if (src) {
+    bubbles = [
+      itemTemplate.genHeroIdentityBubble(target, src, iconUrl),
+      itemTemplate.genStatsBubble(target, rows),
+    ];
+  } else if (iconUrl) {
+    bubbles = [itemTemplate.genIconHeaderBubble(target, iconUrl, rows)];
+  } else {
     return showItem(context, target);
   }
-
-  let bubbles = [itemTemplate.genImageBubble(target.name, src)];
-
-  let rows = Object.keys(target)
-    .filter(key => target[key] && !skipKeys.includes(key))
-    .filter(key => i18n.__("item." + key).startsWith("item.") === false) // 只顯示有對應翻譯的屬性
-    .map(key => itemTemplate.genAttributeRow(i18n.__("item." + key), target[key]));
-
-  bubbles.push(itemTemplate.genAttributeBubble(rows));
   context.replyFlex(target.name, { type: "carousel", contents: bubbles });
 
   // 查詢物品隨機素質
