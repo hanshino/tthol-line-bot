@@ -177,18 +177,17 @@ exports.genHeroIdentityBubble = (item, heroImageUrl, iconUrl) => {
       aspectMode: "cover",
     },
     body: {
-      // 整個 body 底色改成淺色（card），朱紅色只鎖在下面 identity 這個獨立區塊內，
-      // 不會因為內容高度不足而讓 body 預設色（朱紅）從下方露出——
-      // meta 與 flavor 之後都自然落在這層淺色底上。
+      // 整個 body 維持朱紅色（identity 展示卡），icon/名稱/類型/meta 都用近白色文字，
+      // 呼應 genIconHeaderBubble 的呈現邏輯。flavor 敘述不在此重複顯示——
+      // 會在下一張 genStatsBubble 用淺色底更清楚地呈現一次，這裡只做展示卡。
       type: "box",
       layout: "vertical",
-      backgroundColor: COLORS.card,
+      backgroundColor: COLORS.primary,
       paddingAll: "0px",
       contents: [
         {
           type: "box",
           layout: "horizontal",
-          backgroundColor: COLORS.primary,
           paddingTop: "12px",
           paddingBottom: "10px",
           paddingStart: "16px",
@@ -200,35 +199,13 @@ exports.genHeroIdentityBubble = (item, heroImageUrl, iconUrl) => {
         {
           type: "box",
           layout: "vertical",
-          paddingTop: "12px",
-          paddingBottom: flavor(item) ? "8px" : "14px",
+          paddingTop: "0px",
+          paddingBottom: "14px",
           paddingStart: "16px",
           paddingEnd: "16px",
           spacing: "xs",
-          contents: metaContents(item, COLORS.muted),
+          contents: metaContents(item),
         },
-        ...(flavor(item)
-          ? [
-              {
-                type: "box",
-                layout: "vertical",
-                paddingTop: "0px",
-                paddingBottom: "14px",
-                paddingStart: "16px",
-                paddingEnd: "16px",
-                contents: [
-                  {
-                    type: "text",
-                    text: flavor(item),
-                    color: COLORS.muted,
-                    size: "xs",
-                    wrap: true,
-                    lineSpacing: "6px",
-                  },
-                ],
-              },
-            ]
-          : []),
       ],
     },
   };
