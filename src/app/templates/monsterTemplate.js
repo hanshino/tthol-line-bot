@@ -380,8 +380,8 @@ exports.genAttributeBubble = (monster, iconUrl, title, rows) => {
 exports.genAttributeRow = (label, value) => ({
   type: "box",
   layout: "horizontal",
-  paddingTop: "8px",
-  paddingBottom: "8px",
+  paddingTop: "6px",
+  paddingBottom: "6px",
   paddingStart: "12px",
   paddingEnd: "12px",
   contents: [
@@ -397,6 +397,36 @@ exports.genAttributeRow = (label, value) => ({
     },
   ],
 });
+
+/**
+ * 怪物屬性行（min~max 範圍格式，用於傷害等成對欄位）
+ * @param {string} label
+ * @param {number|null} min
+ * @param {number|null} max
+ */
+exports.genRangeRow = (label, min, max) => {
+  const range = min != null && max != null ? (min === max ? `${min}` : `${min}~${max}`) : "—";
+  return {
+    type: "box",
+    layout: "horizontal",
+    paddingTop: "6px",
+    paddingBottom: "6px",
+    paddingStart: "12px",
+    paddingEnd: "12px",
+    contents: [
+      { type: "text", text: `${label}`, color: COLORS.muted, size: "xs", flex: 3 },
+      {
+        type: "text",
+        text: range,
+        color: COLORS.ink,
+        size: "sm",
+        weight: "bold",
+        align: "end",
+        flex: 2,
+      },
+    ],
+  };
+};
 
 /**
  * 掉落物品 bubble（chip 列表）。items 為空時回傳 null。

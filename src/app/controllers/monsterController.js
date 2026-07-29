@@ -90,13 +90,11 @@ async function showResult(context, target) {
     // { title: "六圍屬性", keys: ["str", "pow", "vit", "dex", "agi", "wis"] },
     {
       title: "傷害參數",
-      keys: [
-        "damage_min",
-        "damage_max",
-        "pDamage_min",
-        "pDamage_max",
-        "attack_speed",
-        "attack_range",
+      keys: ["attack_speed", "attack_range"],
+      // damage_min/max and pDamage_min/max condensed into range rows
+      rangeRows: [
+        { label: "傷害", minKey: "damage_min", maxKey: "damage_max" },
+        { label: "內勁傷害", minKey: "pDamage_min", maxKey: "pDamage_max" },
       ],
     },
     {
@@ -105,14 +103,20 @@ async function showResult(context, target) {
     },
   ];
 
-  const bubbles = classify.map(data =>
-    monsterTemplate.genAttributeBubble(
+  const bubbles = classify.map(data => {
+    const rangeRows = (data.rangeRows || []).map(r =>
+      monsterTemplate.genRangeRow(r.label, target[r.minKey], target[r.maxKey])
+    );
+    const attrRows = data.keys.map(key =>
+      monsterTemplate.genAttributeRow(i18n.__("monster." + key), target[key])
+    );
+    return monsterTemplate.genAttributeBubble(
       target,
       iconUrl,
       data.title,
-      data.keys.map(key => monsterTemplate.genAttributeRow(i18n.__("monster." + key), target[key]))
-    )
-  );
+      rangeRows.concat(attrRows)
+    );
+  });
 
   const dropBubble = monsterTemplate.genDropBubble(target.name, dropItemNames);
   if (dropBubble) bubbles.push(dropBubble);
