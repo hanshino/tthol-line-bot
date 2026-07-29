@@ -16,13 +16,45 @@ const TYPE_FILTER = {
 };
 
 // 反向對照：由資料列推回中文類型，讓 controller 沿用 item.type（分類、媒體判斷、比較）。
-const TYPE_NAME_ZH = { HORSE: "座騎", WING: "背飾", HELMET: "帽", ARMOR: "衣" };
+const TYPE_NAME_ZH = {
+  NORMAL_ITEM: "一般道具",
+  BONUS: "加成道具",
+  SCARCE_ITEM: "稀有道具",
+  EVENT_ITEM: "活動道具",
+  ITEM_PET: "寵物",
+  ORNAMENT: "飾品",
+  HORSE: "座騎",
+  WING: "背飾",
+  HELMET: "帽",
+  ARMOR: "衣",
+  POTION: "藥水",
+  BOOT: "靴",
+  CLAW: "特殊武器",
+  SHIELD: "盾",
+  BOXING: "拳刃",
+  BLADE: "刀",
+  PUNCHER: "拳",
+  SWORD: "劍",
+  STING: "匕首",
+  GREAT_SWORD: "大劍",
+  WHISK: "拂塵",
+  BOW: "弓",
+  ROD: "杖",
+  STAFF: "法杖",
+  PET_ORNAMENT: "寵物飾品",
+  HAMMER: "錘",
+  RETURN_SCROLL: "回城卷軸",
+  HIDDEN_WEAPON: "暗器",
+  CASTLE_ITEM: "城堡道具",
+  ITEM_BOT: "機器人道具",
+  MONEY: "金錢",
+  NULL: "其他",
+};
 const EQUIP_SLOT_ZH = { ORNAMENT_1: "左飾", ORNAMENT_2: "中飾", ORNAMENT_3: "右飾" };
 
-// ponytail: 飾品三格只有 equip_slot 分得出，故先查 slot 再查 type_name。
-// 其餘類型（武器、藥水…）暫時回傳英文 type_name；要中文分類名再補對照表即可。
+// ponytail: 飾品三格只有 equip_slot 分得出，故先查 slot 再查 type_name；類型對照表涵蓋資料庫 enum。
 function resolveType(row) {
-  return EQUIP_SLOT_ZH[row.equip_slot] || TYPE_NAME_ZH[row.type_name] || row.type_name || null;
+  return EQUIP_SLOT_ZH[row.equip_slot] || TYPE_NAME_ZH[row.type_name] || "其他";
 }
 
 function decorate(rows) {

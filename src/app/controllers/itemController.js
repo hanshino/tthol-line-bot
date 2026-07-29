@@ -7,8 +7,6 @@ const itemTemplate = require("../templates/item/itemTemplate");
 const driverSerivce = require("../services/driverService");
 const backService = require("../services/backService");
 const { formatRandomAttributes } = require("../../utils/itemUtils");
-const mediaList = ["背飾", "座騎"];
-const equipTypes = ["座騎", "背飾", "左飾", "中飾", "右飾", "帽", "衣"];
 const skipKeys = ["id", "name", "note", "type", "picture", "summary", "src"];
 // showMedia 的屬性欄已經在識別資訊列（metaContents）顯示過這些欄位，避免重複列出
 const metaKeys = ["base_lv", "weight", "value", "durability"];
@@ -101,11 +99,7 @@ async function searchItemId(context, props) {
   }
 
   let [target] = result;
-  if (equipTypes.includes(target.type)) {
-    return showMedia(context, target);
-  }
-
-  return showItem(context, target);
+  return showMedia(context, target);
 }
 
 /**
@@ -126,16 +120,12 @@ async function searchItem(context, props) {
 
   if (items.length === 1) {
     let [target] = items;
-    return equipTypes.includes(target.type)
-      ? showMedia(context, target)
-      : showItem(context, target);
+    return showMedia(context, target);
   }
 
   let findResult = items.find(item => item.name === params[0]);
   if (findResult) {
-    return equipTypes.includes(findResult.type)
-      ? showMedia(context, findResult)
-      : showItem(context, findResult);
+    return showMedia(context, findResult);
   }
 
   return showSearchResult(context, items);

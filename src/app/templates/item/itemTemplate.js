@@ -350,34 +350,38 @@ exports.genIconHeaderBubble = (item, iconUrl, rows) => {
             },
           ],
         },
-        {
-          type: "box",
-          layout: "vertical",
-          paddingStart: "16px",
-          paddingEnd: "16px",
-          paddingTop: "4px",
-          paddingBottom: "16px",
-          contents: [
-            sectionTitle(false),
-            {
-              type: "box",
-              layout: "horizontal",
-              backgroundColor: COLORS.background,
-              borderColor: COLORS.border,
-              borderWidth: "1px",
-              cornerRadius: "8px",
-              paddingAll: "12px",
-              spacing: "none",
-              contents: columns.map(column => ({
+        ...(rows.length > 0
+          ? [
+              {
                 type: "box",
                 layout: "vertical",
-                flex: 1,
-                spacing: "sm",
-                contents: column,
-              })),
-            },
-          ],
-        },
+                paddingStart: "16px",
+                paddingEnd: "16px",
+                paddingTop: "4px",
+                paddingBottom: "16px",
+                contents: [
+                  sectionTitle(false),
+                  {
+                    type: "box",
+                    layout: "horizontal",
+                    backgroundColor: COLORS.background,
+                    borderColor: COLORS.border,
+                    borderWidth: "1px",
+                    cornerRadius: "8px",
+                    paddingAll: "12px",
+                    spacing: "none",
+                    contents: columns.map(column => ({
+                      type: "box",
+                      layout: "vertical",
+                      flex: 1,
+                      spacing: "sm",
+                      contents: column,
+                    })),
+                  },
+                ],
+              },
+            ]
+          : []),
       ],
     },
   };
