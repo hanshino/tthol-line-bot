@@ -399,6 +399,7 @@ async function equipCompare(context, props) {
     bubbles.push(
       itemTemplate.genCompareBubble(
         equip.name,
+        equips[(index + 1) % 2].name,
         Object.keys(equip)
           .filter(key => !skipKeys.includes(key))
           .map(key =>

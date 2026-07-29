@@ -206,23 +206,33 @@ exports.genHeroIdentityBubble = (item, heroImageUrl, iconUrl) => {
         ...(flavor(item)
           ? [
               {
+                // Full-width card-coloured band at the bottom of the cinnabar body.
+                // Edge-to-edge (paddingAll "0px") so it reads as a clean section break
+                // rather than a floating rectangle inside the red — no cornerRadius needed.
+                // Text color switches to COLORS.muted on the light background, matching
+                // the flavor treatment in genStatsBubble/genIconHeaderBubble.
                 type: "box",
                 layout: "vertical",
-                paddingTop: "2px",
-                paddingBottom: "14px",
-                paddingStart: "16px",
-                paddingEnd: "16px",
+                backgroundColor: COLORS.card,
+                paddingAll: "0px",
                 contents: [
                   {
-                    type: "text",
-                    text: flavor(item),
-                    // COLORS.card (near-white) on COLORS.primary (cinnabar) — readable but
-                    // visually secondary via xs size + normal weight, matching how other bubbles
-                    // treat flavor (muted on light bg ≈ card-xs on dark bg)
-                    color: COLORS.card,
-                    size: "xs",
-                    wrap: true,
-                    lineSpacing: "6px",
+                    type: "box",
+                    layout: "vertical",
+                    paddingTop: "12px",
+                    paddingBottom: "14px",
+                    paddingStart: "16px",
+                    paddingEnd: "16px",
+                    contents: [
+                      {
+                        type: "text",
+                        text: flavor(item),
+                        color: COLORS.muted,
+                        size: "xs",
+                        wrap: true,
+                        lineSpacing: "6px",
+                      },
+                    ],
                   },
                 ],
               },
@@ -796,16 +806,22 @@ exports.genSearchBubble = (title, rows = []) => {
 exports.genImageBubble = (name, src) => {
   return {
     type: "bubble",
+    size: "mega",
     header: {
       type: "box",
       layout: "vertical",
+      backgroundColor: COLORS.primary,
+      paddingTop: "12px",
+      paddingBottom: "10px",
+      paddingStart: "16px",
+      paddingEnd: "16px",
       contents: [
         {
           type: "text",
           text: `${name}`,
+          color: COLORS.card,
           size: "lg",
           weight: "bold",
-          align: "center",
         },
       ],
     },
@@ -818,6 +834,7 @@ exports.genImageBubble = (name, src) => {
           url: src,
           size: "full",
           aspectMode: "fit",
+          aspectRatio: "4:3",
         },
       ],
       paddingAll: "0px",
@@ -887,55 +904,84 @@ exports.genAttributeBubble = rows => {
   };
 };
 
-exports.genCompareBubble = (title, rows) => {
+exports.genCompareBubble = (title, other, rows) => {
   return {
     type: "bubble",
-    header: {
-      type: "box",
-      layout: "vertical",
-      contents: [
-        {
-          type: "text",
-          text: `${title} 的比較差異`,
-          align: "center",
-          size: "lg",
-        },
-      ],
-    },
+    size: "mega",
     body: {
       type: "box",
       layout: "vertical",
+      backgroundColor: COLORS.card,
+      paddingAll: "0px",
       contents: [
         {
           type: "box",
+          layout: "vertical",
+          backgroundColor: COLORS.primary,
+          paddingTop: "14px",
+          paddingBottom: "12px",
+          paddingStart: "16px",
+          paddingEnd: "16px",
+          contents: [
+            { type: "text", text: `${title}`, color: COLORS.card, size: "lg", weight: "bold" },
+            {
+              type: "text",
+              text: `相較於${other}的數值差異`,
+              color: COLORS.card,
+              size: "xxs",
+              margin: "xs",
+            },
+          ],
+        },
+        {
+          type: "box",
           layout: "horizontal",
+          backgroundColor: COLORS.background,
+          borderColor: COLORS.border,
+          borderWidth: "1px",
+          paddingTop: "5px",
+          paddingBottom: "5px",
+          paddingStart: "16px",
+          paddingEnd: "16px",
           contents: [
             {
               type: "text",
               text: "屬性",
+              color: COLORS.muted,
+              size: "xxs",
               weight: "bold",
-              align: "center",
+              flex: 3,
             },
             {
               type: "text",
               text: "數值",
+              color: COLORS.muted,
+              size: "xxs",
               weight: "bold",
-              align: "center",
+              align: "end",
+              flex: 2,
             },
             {
               type: "text",
               text: "差異",
+              color: COLORS.muted,
+              size: "xxs",
               weight: "bold",
-              align: "center",
+              align: "end",
+              flex: 2,
             },
           ],
         },
         {
           type: "box",
           layout: "vertical",
-          spacing: "sm",
-          margin: "sm",
-          contents: rows,
+          paddingStart: "16px",
+          paddingEnd: "16px",
+          paddingBottom: "14px",
+          contents: rows.map((row, index) => ({
+            ...row,
+            backgroundColor: index % 2 === 0 ? COLORS.background : COLORS.card,
+          })),
         },
       ],
     },
@@ -946,22 +992,36 @@ exports.genCompareRow = (title, raw, diff) => {
   return {
     type: "box",
     layout: "horizontal",
+    alignItems: "center",
+    paddingTop: "6px",
+    paddingBottom: "6px",
+    paddingStart: "12px",
+    paddingEnd: "12px",
     contents: [
       {
         type: "text",
         text: `${title}`,
-        align: "center",
+        color: COLORS.muted,
+        size: "xs",
+        flex: 3,
       },
       {
         type: "text",
         text: `${raw}`,
-        align: "center",
+        color: COLORS.ink,
+        size: "sm",
+        weight: "bold",
+        align: "end",
+        flex: 2,
       },
       {
         type: "text",
         text: `${diff}`,
-        align: "center",
-        color: `${diff >= 0 ? "#3040FF" : "#FF3040"}`,
+        color: diff > 0 ? COLORS.celadon : diff < 0 ? COLORS.primary : COLORS.muted,
+        size: "sm",
+        weight: "bold",
+        align: "end",
+        flex: 2,
       },
     ],
   };
@@ -970,115 +1030,93 @@ exports.genCompareRow = (title, raw, diff) => {
 exports.genWeightedBubble = (equipA, equipB, rows) => {
   return {
     type: "bubble",
-    header: {
-      type: "box",
-      layout: "vertical",
-      contents: [
-        {
-          type: "text",
-          text: "加權計算",
-          align: "center",
-          size: "lg",
-        },
-      ],
-      paddingBottom: "3px",
-    },
+    size: "mega",
     body: {
       type: "box",
       layout: "vertical",
+      backgroundColor: COLORS.card,
+      paddingAll: "0px",
       contents: [
         {
           type: "box",
-          layout: "horizontal",
+          layout: "vertical",
+          backgroundColor: COLORS.primary,
+          paddingTop: "14px",
+          paddingBottom: "12px",
+          paddingStart: "16px",
+          paddingEnd: "16px",
           contents: [
+            { type: "text", text: "加權計算", color: COLORS.card, size: "xxs" },
             {
               type: "text",
-              contents: [
-                {
-                  type: "span",
-                  text: `${equipB}`,
-                  color: "#315423",
-                },
-                {
-                  type: "span",
-                  text: " 換成 ",
-                },
-                {
-                  type: "span",
-                  text: `${equipA}`,
-                  color: "#491254",
-                },
-              ],
-              align: "center",
+              text: `${equipB} → ${equipA}`,
+              color: COLORS.card,
+              size: "lg",
               weight: "bold",
+              margin: "xs",
+            },
+          ],
+        },
+        {
+          type: "box",
+          layout: "horizontal",
+          alignItems: "center",
+          paddingTop: "10px",
+          paddingBottom: "4px",
+          paddingStart: "16px",
+          paddingEnd: "16px",
+          contents: [
+            {
+              type: "box",
+              layout: "vertical",
+              width: "3px",
+              height: "14px",
+              backgroundColor: COLORS.celadon,
+              cornerRadius: "2px",
+              contents: [],
+            },
+            {
+              type: "text",
+              text: "各流派評估",
+              color: COLORS.ink,
+              size: "sm",
+              weight: "bold",
+              margin: "md",
             },
           ],
         },
         {
           type: "box",
           layout: "vertical",
-          contents: rows,
-          paddingAll: "5px",
-          spacing: "sm",
-        },
-        {
-          type: "separator",
+          paddingTop: "2px",
+          paddingBottom: "8px",
+          paddingStart: "16px",
+          paddingEnd: "16px",
+          contents: rows.map((row, index) => ({
+            ...row,
+            backgroundColor: index % 2 === 0 ? COLORS.background : COLORS.card,
+          })),
         },
         {
           type: "box",
           layout: "vertical",
+          paddingTop: "6px",
+          paddingBottom: "14px",
+          paddingStart: "16px",
+          paddingEnd: "16px",
+          spacing: "xs",
           contents: [
+            { type: "text", text: "① 依照不同流派計算加權分數", color: COLORS.muted, size: "xxs" },
+            { type: "text", text: "② 推薦 = 換過去對此流派有利", color: COLORS.muted, size: "xxs" },
             {
               type: "text",
-              size: "sm",
-              color: "#808080",
-              contents: [
-                {
-                  type: "span",
-                  text: "註解：",
-                },
-                {
-                  type: "span",
-                  text: "1. 依照不同流派計算出的加權值",
-                },
-              ],
-            },
-            {
-              type: "text",
-              size: "sm",
-              color: "#808080",
-              contents: [
-                {
-                  type: "span",
-                  text: "註解：",
-                  color: "#FFFFFF",
-                },
-                {
-                  type: "span",
-                  text: "2. 打勾為推薦更換",
-                },
-              ],
-            },
-            {
-              type: "text",
-              size: "sm",
-              color: "#808080",
-              contents: [
-                {
-                  type: "span",
-                  text: "註解：",
-                  color: "#FFFFFF",
-                },
-                {
-                  type: "span",
-                  text: "3. 分數越低更換的CP值越低",
-                },
-              ],
+              text: "③ 分數絕對值越小，差異越不顯著",
+              color: COLORS.muted,
+              size: "xxs",
             },
           ],
         },
       ],
-      spacing: "sm",
     },
   };
 };
@@ -1087,34 +1125,50 @@ exports.genWeightedRow = (type, weight) => {
   return {
     type: "box",
     layout: "horizontal",
+    alignItems: "center",
+    backgroundColor: weight > 0 ? COLORS.background : COLORS.card,
+    paddingTop: "7px",
+    paddingBottom: "7px",
+    paddingStart: "10px",
+    paddingEnd: "10px",
+    spacing: "sm",
     contents: [
       {
         type: "text",
-        contents: [
-          { type: "span", text: "如果你是" },
-          { type: "span", text: " " },
-          { type: "span", text: `${type}`, size: "sm" },
-        ],
-        flex: 6,
-      },
-      {
-        type: "text",
-        text: "差異值",
-        size: "sm",
-        align: "center",
-        flex: 2,
+        text: `${type}`,
+        color: COLORS.muted,
+        size: "xs",
+        flex: 1,
       },
       {
         type: "text",
         text: `${weight}`,
+        color: weight > 0 ? COLORS.celadon : COLORS.primary,
+        size: "sm",
+        weight: "bold",
         align: "end",
-        flex: 2,
+        flex: 0,
       },
       {
-        type: "text",
-        text: weight > 0 ? "✔️" : "❌",
-        align: "center",
-        flex: 1,
+        type: "box",
+        layout: "vertical",
+        backgroundColor: weight > 0 ? COLORS.celadon : COLORS.border,
+        cornerRadius: "10px",
+        paddingTop: "2px",
+        paddingBottom: "2px",
+        paddingStart: "8px",
+        paddingEnd: "8px",
+        flex: 0,
+        contents: [
+          {
+            type: "text",
+            text: weight > 0 ? "推薦" : "保留",
+            color: weight > 0 ? COLORS.card : COLORS.muted,
+            size: "xxs",
+            weight: "bold",
+            align: "center",
+          },
+        ],
       },
     ],
   };
