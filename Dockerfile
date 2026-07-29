@@ -1,4 +1,4 @@
-FROM node:lts
+FROM node:lts-bullseye-slim
 
 LABEL Name="tthol Line機器人"
 LABEL description="非官方，純玩家興趣而寫的機器人"
@@ -10,7 +10,7 @@ WORKDIR /application
 COPY package.json ./
 COPY yarn.lock ./
 
-RUN yarn install
+RUN yarn install --frozen-lockfile --production
 
 ENV NODE_ENV=production
 
