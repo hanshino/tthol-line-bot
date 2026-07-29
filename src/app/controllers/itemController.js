@@ -40,6 +40,9 @@ const STAT_KEYS = [
   "pdamage_max",
 ];
 const weighted = require("../../configs/weighted.config");
+// 裝備比較未指定分類時的預設搜尋範圍——排除寵物/道具等非裝備類型，避免同名寵物/道具混入結果
+// 造成「多個結果」誤判（沿用 `.equip` 指令的分類清單，見下方 routes）。
+const EQUIP_TYPES = ["座騎", "背飾", "左飾", "中飾", "右飾", "帽", "衣"];
 const alias = [
   { origin: /^\.?(外功?[坐座]騎)$/, to: ".driverrank 外*11 物 技*3 命", type: "座騎" },
   { origin: /^\.?(玄學?[坐座]騎)$/, to: ".driverrank 玄*7 技*3 命", type: "座騎" },
@@ -62,7 +65,7 @@ exports.routes = [
   text(/^\.?(item|物品)\s(?<item>\d+)$/, searchItemId),
   text(/^\.?(item|物品)\s/, searchItem),
   text(/^\.?(equip|裝備)\s/, (context, props) =>
-    searchItem(context, { ...props, type: ["座騎", "背飾", "左飾", "中飾", "右飾", "帽", "衣"] })
+    searchItem(context, { ...props, type: EQUIP_TYPES })
   ),
   text(/^\.?(driver|[座坐]騎?)\s/, (context, props) =>
     searchItem(context, { ...props, type: "座騎" })
