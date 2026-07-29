@@ -388,6 +388,231 @@ exports.genIconHeaderBubble = (item, iconUrl, rows) => {
 };
 
 /**
+ * 產出附加資訊 bubble（隨機素質 + 掉落怪物），供 showMedia flex carousel 追加。
+ * 兩個 section 各自在資料為空時自動省略；若兩者皆空則回傳 null（呼叫端不加入 carousel）。
+ *
+ * @param {string} itemName
+ * @param {Array<{attribute:string, min:number, max:number, rate:number}>} randomAttributes
+ * @param {Array<{name:string, level:number}>} monsters
+ * @returns {Object|null} bubble object or null
+ */
+exports.genExtraBubble = (itemName, randomAttributes, monsters) => {
+  // 計算正規化機率（同 formatRandomAttributes 的邏輯）
+  const totalRate =
+    randomAttributes.length > 0 ? randomAttributes.reduce((sum, r) => sum + r.rate, 0) : 0;
+
+  const randRows = randomAttributes.map((r, idx) => {
+    const pct = totalRate > 0 ? Math.round((r.rate / totalRate) * 100) : 0;
+    const range = r.min === r.max ? `${r.min}` : `${r.min}~${r.max}`;
+    return {
+      type: "box",
+      layout: "vertical",
+      backgroundColor: idx % 2 === 0 ? COLORS.background : COLORS.card,
+      paddingAll: "0px",
+      contents: [
+        {
+          type: "box",
+          layout: "horizontal",
+          paddingTop: "8px",
+          paddingBottom: "8px",
+          paddingStart: "12px",
+          paddingEnd: "12px",
+          contents: [
+            // attribute name
+            { type: "text", text: r.attribute, color: COLORS.muted, size: "xs", flex: 3 },
+            // range value — prominent ink colour
+            {
+              type: "text",
+              text: range,
+              color: COLORS.ink,
+              size: "sm",
+              weight: "bold",
+              align: "end",
+              flex: 2,
+            },
+            // probability — de-emphasised, muted, to the right of range
+            {
+              type: "text",
+              text: `${pct}%`,
+              color: COLORS.muted,
+              size: "xs",
+              align: "end",
+              flex: 2,
+            },
+          ],
+        },
+      ],
+    };
+  });
+
+  // Monster chips: compact horizontal-wrap via multiple horizontal rows of up to 2
+  // ponytail: LINE Flex has no CSS flex-wrap — simulate with chunked horizontal boxes
+  const CHIP_CHUNK = 2;
+  const monsterChunks = [];
+  for (let i = 0; i < monsters.length; i += CHIP_CHUNK) {
+    monsterChunks.push(monsters.slice(i, i + CHIP_CHUNK));
+  }
+  const monsterRows = monsterChunks.map(chunk => ({
+    type: "box",
+    layout: "horizontal",
+    spacing: "sm",
+    paddingTop: "4px",
+    paddingBottom: "0px",
+    contents: chunk.map(m => ({
+      type: "box",
+      layout: "vertical",
+      flex: 1,
+      backgroundColor: COLORS.background,
+      borderColor: COLORS.border,
+      borderWidth: "1px",
+      cornerRadius: "6px",
+      paddingTop: "4px",
+      paddingBottom: "4px",
+      paddingStart: "8px",
+      paddingEnd: "8px",
+      contents: [
+        {
+          type: "text",
+          text: m.name,
+          color: COLORS.ink,
+          size: "xs",
+          wrap: false,
+        },
+        {
+          type: "text",
+          text: `Lv.${m.level}`,
+          color: COLORS.muted,
+          size: "xxs",
+        },
+      ],
+    })),
+  }));
+
+  const sections = [
+    ...(randRows.length > 0
+      ? [
+          // section title: 隨機素質
+          {
+            type: "box",
+            layout: "horizontal",
+            paddingStart: "16px",
+            paddingEnd: "16px",
+            paddingTop: "6px",
+            paddingBottom: "8px",
+            alignItems: "center",
+            contents: [
+              {
+                type: "box",
+                layout: "vertical",
+                width: "3px",
+                height: "14px",
+                backgroundColor: COLORS.celadon,
+                cornerRadius: "2px",
+                contents: [],
+              },
+              {
+                type: "text",
+                text: "隨機素質",
+                color: COLORS.ink,
+                size: "sm",
+                weight: "bold",
+                margin: "md",
+              },
+            ],
+          },
+          {
+            type: "box",
+            layout: "vertical",
+            paddingStart: "16px",
+            paddingEnd: "16px",
+            paddingBottom: "16px",
+            spacing: "none",
+            contents: randRows,
+          },
+        ]
+      : []),
+    ...(monsterRows.length > 0
+      ? [
+          { type: "separator", color: COLORS.border },
+          // section title: 掉落怪物
+          {
+            type: "box",
+            layout: "horizontal",
+            paddingStart: "16px",
+            paddingEnd: "16px",
+            paddingTop: "10px",
+            paddingBottom: "8px",
+            alignItems: "center",
+            contents: [
+              {
+                type: "box",
+                layout: "vertical",
+                width: "3px",
+                height: "14px",
+                backgroundColor: COLORS.indigo,
+                cornerRadius: "2px",
+                contents: [],
+              },
+              {
+                type: "text",
+                text: "掉落怪物",
+                color: COLORS.ink,
+                size: "sm",
+                weight: "bold",
+                margin: "md",
+              },
+            ],
+          },
+          {
+            type: "box",
+            layout: "vertical",
+            paddingStart: "16px",
+            paddingEnd: "16px",
+            paddingBottom: "16px",
+            spacing: "none",
+            contents: monsterRows,
+          },
+        ]
+      : []),
+  ];
+
+  if (sections.length === 0) return null;
+
+  return {
+    type: "bubble",
+    size: "mega",
+    body: {
+      type: "box",
+      layout: "vertical",
+      backgroundColor: COLORS.card,
+      paddingAll: "0px",
+      contents: [
+        // header strip — same cinnabar band pattern
+        {
+          type: "box",
+          layout: "vertical",
+          backgroundColor: COLORS.primary,
+          paddingTop: "14px",
+          paddingBottom: "14px",
+          paddingStart: "16px",
+          paddingEnd: "16px",
+          contents: [
+            {
+              type: "text",
+              text: `${itemName || ""}`,
+              color: COLORS.card,
+              size: "sm",
+              weight: "bold",
+            },
+          ],
+        },
+        ...sections,
+      ],
+    },
+  };
+};
+
+/**
  * 取物品顯示的橫欄（含小圖示）
  * @param {Object} data item 物件
  * @param {string|null} iconUrl 圖示 URL（可為 null）

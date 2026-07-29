@@ -238,31 +238,25 @@ async function showMedia(context, target) {
   } else {
     return showItem(context, target);
   }
-  context.replyFlex(target.name, { type: "carousel", contents: bubbles });
 
-  // 查詢物品隨機素質
+  // 查詢隨機素質與掉落怪物，整合進同一 flex carousel
+  let randomAttributes = [];
+  let monsters = [];
   try {
-    const randomAttributes = await itemRandService.getByItemId(target.id);
-    if (randomAttributes.length > 0) {
-      const randText = formatRandomAttributes(randomAttributes);
-      context.replyText(randText);
-    }
+    randomAttributes = await itemRandService.getByItemId(target.id);
   } catch (error) {
     console.error("查詢隨機素質失敗:", error);
   }
-
-  // 查詢掉落此物品的怪物
   try {
-    const monsters = await monsterService.findByDropItem(target.id);
-    if (monsters.length > 0) {
-      const monsterNames = monsters
-        .map(monster => `${monster.name}(Lv.${monster.level})`)
-        .join("、");
-      context.replyText(`掉落怪物：${monsterNames}`);
-    }
+    monsters = await monsterService.findByDropItem(target.id);
   } catch (error) {
     console.error("查詢掉落怪物失敗:", error);
   }
+
+  const extraBubble = itemTemplate.genExtraBubble(target.name, randomAttributes, monsters);
+  if (extraBubble) bubbles.push(extraBubble);
+
+  context.replyFlex(target.name, { type: "carousel", contents: bubbles });
 }
 
 async function getSheetEquipData(target) {
