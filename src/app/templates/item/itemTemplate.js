@@ -384,33 +384,76 @@ exports.genIconHeaderBubble = (item, iconUrl, rows) => {
 };
 
 /**
- * 取物品顯示的橫欄
- * @param {string} title 左邊標題
- * @param {string} description 右邊描述
+ * 取物品顯示的橫欄（含小圖示）
+ * @param {Object} data item 物件
+ * @param {string|null} iconUrl 圖示 URL（可為 null）
  */
-exports.genSearchRow = data => {
+exports.genSearchRow = (data, iconUrl) => {
   let { name, summary, id } = data;
+  const summaryText = summary ? summary.replace(/\\n+/g, " ").trim() : "";
+  const iconBox = iconUrl
+    ? iconTile(iconUrl, "36px")
+    : {
+        type: "box",
+        layout: "vertical",
+        width: "36px",
+        height: "36px",
+        backgroundColor: COLORS.border,
+        cornerRadius: "6px",
+        justifyContent: "center",
+        alignItems: "center",
+        contents: [{ type: "text", text: "？", color: COLORS.muted, size: "xs", align: "center" }],
+      };
+
   return {
     type: "box",
-    layout: "vertical",
+    layout: "horizontal",
+    paddingTop: "8px",
+    paddingBottom: "8px",
+    paddingStart: "0px",
+    paddingEnd: "0px",
+    alignItems: "flex-start",
+    spacing: "md",
     contents: [
-      {
-        type: "text",
-        text: `${name}`,
-        flex: 3,
-        size: "sm",
-      },
+      iconBox,
       {
         type: "box",
-        layout: "horizontal",
+        layout: "vertical",
+        flex: 1,
+        spacing: "xs",
         contents: [
           {
             type: "text",
-            text: `${summary.replace(/\\n+/g, "") || "無"}`,
-            flex: 2,
-            size: "xs",
+            text: `${name}`,
+            color: COLORS.ink,
+            size: "sm",
+            weight: "bold",
+            wrap: false,
           },
+          summaryText
+            ? {
+                type: "text",
+                text: summaryText,
+                color: COLORS.muted,
+                size: "xxs",
+                wrap: true,
+                maxLines: 2,
+              }
+            : {
+                type: "text",
+                text: `#${id}`,
+                color: COLORS.border,
+                size: "xxs",
+              },
         ],
+      },
+      {
+        type: "text",
+        text: "›",
+        color: COLORS.primary,
+        size: "lg",
+        flex: 0,
+        align: "end",
       },
     ],
     action: {
@@ -421,35 +464,70 @@ exports.genSearchRow = data => {
 };
 
 /**
- * 產出物品顯示的bubble
- * @param {string} title 標題
- * @param {array} rows 由`genRow`產生的物件陣列
+ * 產出物品搜尋結果 bubble（依類型分組，含頁首色帶）
+ * @param {string} title 類型標題
+ * @param {array} rows 由 genSearchRow 產生的陣列
  */
 exports.genSearchBubble = (title, rows = []) => {
+  // 分隔線：每兩列中間插一條淡線
+  const divided = [];
+  rows.forEach((row, i) => {
+    divided.push(row);
+    if (i < rows.length - 1) {
+      divided.push({ type: "separator", color: COLORS.border });
+    }
+  });
+
   return {
     type: "bubble",
+    size: "mega",
     body: {
       type: "box",
       layout: "vertical",
+      backgroundColor: COLORS.card,
+      paddingAll: "0px",
       contents: [
+        // header strip — matches primary colour band of hero/icon-header bubbles
         {
           type: "box",
-          layout: "vertical",
+          layout: "horizontal",
+          backgroundColor: COLORS.primary,
+          paddingTop: "12px",
+          paddingBottom: "10px",
+          paddingStart: "16px",
+          paddingEnd: "16px",
+          alignItems: "center",
+          spacing: "sm",
           contents: [
+            {
+              type: "box",
+              layout: "vertical",
+              width: "4px",
+              height: "18px",
+              backgroundColor: COLORS.card,
+              cornerRadius: "2px",
+              contents: [],
+            },
             {
               type: "text",
               text: `${title}`,
+              color: COLORS.card,
+              size: "md",
               weight: "bold",
-              size: "lg",
+              flex: 1,
             },
+            typeBadge(title),
           ],
         },
+        // rows area
         {
           type: "box",
           layout: "vertical",
-          spacing: "md",
-          paddingAll: "3px",
-          contents: [...rows],
+          paddingTop: "4px",
+          paddingBottom: "8px",
+          paddingStart: "16px",
+          paddingEnd: "16px",
+          contents: divided,
         },
       ],
     },
@@ -790,101 +868,179 @@ exports.genWeightedRow = (type, weight) => {
 exports.genRankBubble = rows => {
   return {
     type: "bubble",
-    header: {
-      type: "box",
-      layout: "vertical",
-      contents: [
-        {
-          type: "text",
-          text: "排行計算",
-          weight: "bold",
-          color: "#345214",
-          align: "center",
-        },
-      ],
-      paddingBottom: "3px",
-    },
+    size: "mega",
     body: {
       type: "box",
       layout: "vertical",
+      backgroundColor: COLORS.card,
+      paddingAll: "0px",
       contents: [
+        // header strip
         {
           type: "box",
           layout: "horizontal",
+          backgroundColor: COLORS.primary,
+          paddingTop: "12px",
+          paddingBottom: "10px",
+          paddingStart: "16px",
+          paddingEnd: "16px",
+          alignItems: "center",
+          spacing: "sm",
           contents: [
             {
-              type: "text",
-              text: "排行",
-              align: "center",
-              weight: "bold",
-              flex: 2,
+              type: "box",
+              layout: "vertical",
+              width: "4px",
+              height: "18px",
+              backgroundColor: COLORS.card,
+              cornerRadius: "2px",
+              contents: [],
             },
             {
               type: "text",
-              text: "名稱",
-              align: "center",
+              text: "排行計算",
+              color: COLORS.card,
+              size: "md",
               weight: "bold",
-              flex: 4,
+              flex: 1,
+            },
+          ],
+        },
+        // column-label sub-header
+        // ponytail: flex weights mirror the row layout (rank badge → flex:2, icon → flex:2,
+        // name → flex:5, score → flex:2); text nodes can't take width in LINE Flex.
+        {
+          type: "box",
+          layout: "horizontal",
+          backgroundColor: COLORS.background,
+          paddingTop: "6px",
+          paddingBottom: "6px",
+          paddingStart: "16px",
+          paddingEnd: "16px",
+          contents: [
+            {
+              type: "text",
+              text: "排",
+              color: COLORS.muted,
+              size: "xxs",
+              weight: "bold",
+              align: "center",
+              flex: 2,
+            },
+            { type: "text", text: "　", color: COLORS.muted, size: "xxs", flex: 2 },
+            {
+              type: "text",
+              text: "名稱",
+              color: COLORS.muted,
+              size: "xxs",
+              weight: "bold",
+              flex: 5,
             },
             {
               type: "text",
               text: "分數",
-              align: "center",
+              color: COLORS.muted,
+              size: "xxs",
               weight: "bold",
-              flex: 3,
-            },
-            {
-              type: "text",
-              text: "點擊",
-              align: "center",
-              weight: "bold",
-              flex: 3,
+              align: "end",
+              flex: 2,
             },
           ],
         },
+        // rows
         {
-          type: "separator",
+          type: "box",
+          layout: "vertical",
+          paddingTop: "4px",
+          paddingBottom: "8px",
+          paddingStart: "16px",
+          paddingEnd: "16px",
+          spacing: "none",
+          contents: rows,
         },
-        ...rows,
       ],
-      spacing: "sm",
     },
   };
 };
 
-exports.genRankRow = (rank, equip) => {
+/**
+ * 排行榜單列（含圖示 + 名稱 + 加權分數，可點擊）
+ * @param {number} rank
+ * @param {Object} equip  item 物件，需含 weighted 欄位
+ * @param {string|null} iconUrl
+ */
+exports.genRankRow = (rank, equip, iconUrl) => {
   let { name, weighted, id } = equip;
+
+  // top-3 rank badges get accent colours
+  const rankColors = [COLORS.primary, COLORS.celadon, COLORS.indigo];
+  const rankColor = rank <= 3 ? rankColors[rank - 1] : COLORS.muted;
+
+  const iconBox = iconUrl
+    ? iconTile(iconUrl, "32px")
+    : {
+        type: "box",
+        layout: "vertical",
+        width: "32px",
+        height: "32px",
+        backgroundColor: COLORS.border,
+        cornerRadius: "6px",
+        justifyContent: "center",
+        alignItems: "center",
+        contents: [{ type: "text", text: "？", color: COLORS.muted, size: "xxs", align: "center" }],
+      };
+
   return {
     type: "box",
     layout: "horizontal",
+    paddingTop: "6px",
+    paddingBottom: "6px",
+    alignItems: "center",
+    spacing: "sm",
     contents: [
+      // rank badge: fixed-width circle-ish box
       {
-        type: "text",
-        text: `${rank}`,
-        align: "center",
-        size: "sm",
-        flex: 2,
+        type: "box",
+        layout: "vertical",
+        width: "28px",
+        height: "28px",
+        backgroundColor: rankColor,
+        cornerRadius: "14px",
+        justifyContent: "center",
+        alignItems: "center",
+        flex: 0,
+        contents: [
+          {
+            type: "text",
+            text: `${rank}`,
+            color: COLORS.card,
+            size: "xs",
+            weight: "bold",
+            align: "center",
+          },
+        ],
       },
+      // icon
+      iconBox,
+      // name (flex:1 so it fills remaining space and truncates cleanly)
       {
         type: "text",
         text: `${name}`,
-        align: "center",
-        size: "sm",
-        flex: 4,
+        color: COLORS.ink,
+        size: "xs",
+        weight: "bold",
+        flex: 1,
+        wrap: false,
       },
+      // score
       {
         type: "text",
         text: `${weighted}`,
-        align: "center",
-        size: "sm",
-        flex: 3,
-      },
-      {
-        type: "text",
-        text: "查詢",
-        align: "center",
-        size: "sm",
-        flex: 3,
+        color: rankColor,
+        size: "xs",
+        weight: "bold",
+        align: "end",
+        flex: 2,
       },
     ],
     action: { type: "message", text: `.item ${id}` },

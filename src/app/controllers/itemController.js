@@ -141,11 +141,16 @@ async function searchItem(context, props) {
   return showSearchResult(context, items);
 }
 
-function showSearchResult(context, items) {
+async function showSearchResult(context, items) {
+  const ids = items.map(item => item.id);
+  const iconMap = await itemService.getIconUrlsByIds(ids);
+
   let classifyItem = classify(items);
   let bubbles = [];
   Object.keys(classifyItem).forEach(key => {
-    let rows = classifyItem[key].map(item => itemTemplate.genSearchRow(item));
+    let rows = classifyItem[key].map(item =>
+      itemTemplate.genSearchRow(item, iconMap[item.id] || null)
+    );
     for (let i = 0; i < rows.length; i += 9) {
       bubbles.push(itemTemplate.genSearchBubble(key, rows.slice(i, i + 9)));
     }
@@ -518,8 +523,14 @@ async function showRanking(context, props) {
     .filter(equip => equip.weighted !== 0)
     .sort((a, b) => b.weighted - a.weighted);
 
+  const top30 = equips.slice(0, 30);
+  const rankIds = top30.map(e => e.id);
+  const rankIconMap = await itemService.getIconUrlsByIds(rankIds);
+
   let bubbles = [];
-  let rows = equips.slice(0, 30).map((equip, index) => itemTemplate.genRankRow(index + 1, equip));
+  let rows = top30.map((equip, index) =>
+    itemTemplate.genRankRow(index + 1, equip, rankIconMap[equip.id] || null)
+  );
 
   for (let i = 0; i < rows.length; i += 10) {
     bubbles.push(itemTemplate.genRankBubble(rows.slice(i, i + 10)));

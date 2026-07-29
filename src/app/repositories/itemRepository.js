@@ -159,3 +159,31 @@ exports.getIconUrl = async id => {
   const icon = rows.find(r => r.kind === "icon") || rows.find(r => r.kind === "gicon");
   return icon ? icon.url : null;
 };
+
+/**
+ * 批次取得多個物品的圖示 URL（一次查詢，icon 優先退回 gicon）
+ * @param {number[]} ids
+ * @returns {Promise<Object>} { [id]: url | null }
+ */
+exports.getIconUrlsByIds = async ids => {
+  if (!ids || ids.length === 0) return {};
+  const rows = await itemImage()
+    .select("item_id", "kind", "url")
+    .whereIn("item_id", ids)
+    .whereIn("kind", ["icon", "gicon"]);
+
+  // 每個 id 只保留 icon > gicon 的那一筆
+  const map = {};
+  rows.forEach(r => {
+    const cur = map[r.item_id];
+    if (!cur || (cur.kind === "gicon" && r.kind === "icon")) {
+      map[r.item_id] = r;
+    }
+  });
+
+  const result = {};
+  ids.forEach(id => {
+    result[id] = map[id] ? map[id].url : null;
+  });
+  return result;
+};

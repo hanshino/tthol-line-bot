@@ -27,3 +27,5 @@ exports.getAllById = (ids, filter = {}, sort = {}) => {
 };
 
 exports.getIconUrl = id => itemRepo.getIconUrl(id);
+
+exports.getIconUrlsByIds = ids => itemRepo.getIconUrlsByIds(ids);
