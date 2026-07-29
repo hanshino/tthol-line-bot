@@ -55,24 +55,24 @@ async function showResult(context, target) {
   const { id } = target;
   const monster = await monsterService.findMonster(id);
 
+  // 批次查詢圖示（單筆）
+  const iconUrl = await monsterService.getIconUrl(id);
+
   // 處理掉落物品
-  let dropItems = "";
+  let dropItemNames = [];
   if (monster && monster.drop_item) {
     try {
       const dropItemIds = JSON.parse(monster.drop_item);
       if (Array.isArray(dropItemIds) && dropItemIds.length > 0) {
         const items = await itemService.getAllById(dropItemIds);
-        dropItems = items
-          .map(item => item.name)
-          .filter(name => name)
-          .join("、");
+        dropItemNames = items.map(item => item.name).filter(Boolean);
       }
     } catch (error) {
       console.error("解析 drop_item JSON 失敗:", error);
     }
   }
 
-  let classify = [
+  const classify = [
     {
       title: "基本屬性",
       keys: [
@@ -105,19 +105,19 @@ async function showResult(context, target) {
     },
   ];
 
-  let bubbles = classify.map(data =>
+  const bubbles = classify.map(data =>
     monsterTemplate.genAttributeBubble(
+      target,
+      iconUrl,
       data.title,
       data.keys.map(key => monsterTemplate.genAttributeRow(i18n.__("monster." + key), target[key]))
     )
   );
 
-  context.replyFlex(target.name, { type: "carousel", contents: bubbles });
+  const dropBubble = monsterTemplate.genDropBubble(target.name, dropItemNames);
+  if (dropBubble) bubbles.push(dropBubble);
 
-  // 如果有掉落物品，單獨回覆文字訊息
-  if (dropItems) {
-    context.replyText(`掉落物品：${dropItems}`);
-  }
+  context.replyFlex(target.name, { type: "carousel", contents: bubbles });
 }
 
 /**
@@ -146,8 +146,11 @@ async function searchMonster(context, props) {
  * @param {Array} monsters
  */
 async function showMultiResult(context, monsters) {
-  let rows = monsters.map(data => monsterTemplate.genMonsterRow(data));
-  let bubbles = [];
+  const ids = monsters.map(m => m.id);
+  const iconMap = await monsterService.getIconUrlsByIds(ids);
+
+  const rows = monsters.map(data => monsterTemplate.genMonsterRow(data, iconMap[data.id] || null));
+  const bubbles = [];
   for (let i = 0; i < rows.length; i += 10) {
     bubbles.push(monsterTemplate.genMonsterBubble(rows.slice(i, i + 10)));
   }

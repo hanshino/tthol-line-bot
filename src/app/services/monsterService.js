@@ -23,3 +23,7 @@ exports.findMonster = id => {
 exports.findByDropItem = (itemId, sort) => {
   return monsterRepo.findByDropItem(itemId, sort);
 };
+
+exports.getIconUrl = id => monsterRepo.getIconUrl(id);
+
+exports.getIconUrlsByIds = ids => monsterRepo.getIconUrlsByIds(ids);

@@ -1,4 +1,5 @@
 const { monster, npc } = require("../models/monster");
+const npcImage = require("../models/npcImage");
 const memory = require("memory-cache");
 
 /**
@@ -97,4 +98,35 @@ exports.findByDropItem = (itemId, sort = {}) => {
   }
 
   return query;
+};
+
+/**
+ * 取得怪物的圖示 URL（npc_images 表，一筆一圖）
+ * @param {number} id npc id
+ * @returns {Promise<string|null>}
+ */
+exports.getIconUrl = async id => {
+  const row = await npcImage().select("url").where("npc_id", "=", id).first();
+  return row ? row.url : null;
+};
+
+/**
+ * 批次取得多個怪物的圖示 URL（一次查詢）
+ * @param {number[]} ids
+ * @returns {Promise<Object>} { [id]: url | null }
+ */
+exports.getIconUrlsByIds = async ids => {
+  if (!ids || ids.length === 0) return {};
+  const rows = await npcImage().select("npc_id", "url").whereIn("npc_id", ids);
+
+  const map = {};
+  rows.forEach(r => {
+    map[r.npc_id] = r.url;
+  });
+
+  const result = {};
+  ids.forEach(id => {
+    result[id] = map[id] || null;
+  });
+  return result;
 };
