@@ -431,18 +431,18 @@ exports.genRangeRow = (label, min, max) => {
 /**
  * 掉落物品 bubble（chip 列表）。items 為空時回傳 null。
  * @param {string} monsterName
- * @param {string[]} itemNames
+ * @param {Array<{id:number, name:string}>} items
  * @returns {Object|null}
  */
-exports.genDropBubble = (monsterName, itemNames) => {
-  const names = itemNames.filter(Boolean);
-  if (names.length === 0) return null;
+exports.genDropBubble = (monsterName, items) => {
+  const namedItems = items.filter(item => item && item.name);
+  if (namedItems.length === 0) return null;
 
   // 2-per-row chip grid（LINE Flex 無 flex-wrap）
   const CHUNK = 2;
   const chunks = [];
-  for (let i = 0; i < names.length; i += CHUNK) {
-    chunks.push(names.slice(i, i + CHUNK));
+  for (let i = 0; i < namedItems.length; i += CHUNK) {
+    chunks.push(namedItems.slice(i, i + CHUNK));
   }
 
   const chipRows = chunks.map(chunk => ({
@@ -451,7 +451,7 @@ exports.genDropBubble = (monsterName, itemNames) => {
     spacing: "sm",
     paddingTop: "4px",
     paddingBottom: "0px",
-    contents: chunk.map(name => ({
+    contents: chunk.map(item => ({
       type: "box",
       layout: "vertical",
       flex: 1,
@@ -463,10 +463,11 @@ exports.genDropBubble = (monsterName, itemNames) => {
       paddingBottom: "5px",
       paddingStart: "8px",
       paddingEnd: "8px",
+      action: { type: "message", text: `.item ${item.id}` },
       contents: [
         {
           type: "text",
-          text: name,
+          text: item.name,
           color: COLORS.ink,
           size: "xs",
           wrap: false,

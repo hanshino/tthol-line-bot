@@ -495,6 +495,7 @@ exports.genExtraBubble = (itemName, randomAttributes, monsters) => {
       paddingBottom: "4px",
       paddingStart: "8px",
       paddingEnd: "8px",
+      action: { type: "message", text: `.monster ${m.id}` },
       contents: [
         {
           type: "text",

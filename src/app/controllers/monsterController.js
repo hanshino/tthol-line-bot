@@ -59,13 +59,13 @@ async function showResult(context, target) {
   const iconUrl = await monsterService.getIconUrl(id);
 
   // 處理掉落物品
-  let dropItemNames = [];
+  let dropItems = [];
   if (monster && monster.drop_item) {
     try {
       const dropItemIds = JSON.parse(monster.drop_item);
       if (Array.isArray(dropItemIds) && dropItemIds.length > 0) {
         const items = await itemService.getAllById(dropItemIds);
-        dropItemNames = items.map(item => item.name).filter(Boolean);
+        dropItems = items.filter(item => item && item.name);
       }
     } catch (error) {
       console.error("解析 drop_item JSON 失敗:", error);
@@ -118,7 +118,7 @@ async function showResult(context, target) {
     );
   });
 
-  const dropBubble = monsterTemplate.genDropBubble(target.name, dropItemNames);
+  const dropBubble = monsterTemplate.genDropBubble(target.name, dropItems);
   if (dropBubble) bubbles.push(dropBubble);
 
   context.replyFlex(target.name, { type: "carousel", contents: bubbles });
