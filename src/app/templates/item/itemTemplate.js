@@ -126,7 +126,7 @@ function sectionTitle(padded = true) {
 }
 
 function flavor(item) {
-  return `${item.note || item.summary || ""}`.replace(/\\n+/g, "\n");
+  return `${item.summary || item.note || ""}`.replace(/\\n+/g, "\n");
 }
 
 exports.statColor = statColor;
