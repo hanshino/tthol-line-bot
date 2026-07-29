@@ -331,8 +331,8 @@ async function equipCompare(context, props) {
   const { equipA, equipB } = props.match.groups;
   const { type } = props;
 
-  let a = await itemService.getByName([equipA], { type });
-  let b = await itemService.getByName([equipB], { type });
+  let a = await itemService.getByName([equipA], { type, excludeSkin: true });
+  let b = await itemService.getByName([equipB], { type, excludeSkin: true });
 
   if (a.length === 0) {
     return context.replyText(`錯誤： \`${equipA}\` 查無結果`);

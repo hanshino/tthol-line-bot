@@ -86,6 +86,8 @@ exports.find = async id => {
  * @param {array} filter  可過濾部分資料
  * - type
  * - note
+ * - excludeSkin：排除紙娃娃外裝（`equip_slot` 為 `EXTRA_*`，同名同 type_name 但數值全 0，
+ *   會跟本體裝備一起被搜到造成「多個結果」誤判，比較裝備等只看數值的場景要排除）
  * @returns {Promise<Array>}
  */
 exports.findByName = async (names, filter = {}) => {
@@ -97,6 +99,12 @@ exports.findByName = async (names, filter = {}) => {
 
   if (filter.type) {
     applyTypeFilter(query, filter.type);
+  }
+
+  if (filter.excludeSkin) {
+    query.where(function () {
+      this.whereNull("equip_slot").orWhereNot("equip_slot", "like", "EXTRA_%");
+    });
   }
 
   return decorate(await query);
