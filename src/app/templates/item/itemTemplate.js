@@ -203,6 +203,31 @@ exports.genHeroIdentityBubble = (item, heroImageUrl, iconUrl) => {
           spacing: "xs",
           contents: metaContents(item),
         },
+        ...(flavor(item)
+          ? [
+              {
+                type: "box",
+                layout: "vertical",
+                paddingTop: "2px",
+                paddingBottom: "14px",
+                paddingStart: "16px",
+                paddingEnd: "16px",
+                contents: [
+                  {
+                    type: "text",
+                    text: flavor(item),
+                    // COLORS.card (near-white) on COLORS.primary (cinnabar) — readable but
+                    // visually secondary via xs size + normal weight, matching how other bubbles
+                    // treat flavor (muted on light bg ≈ card-xs on dark bg)
+                    color: COLORS.card,
+                    size: "xs",
+                    wrap: true,
+                    lineSpacing: "6px",
+                  },
+                ],
+              },
+            ]
+          : []),
       ],
     },
   };
