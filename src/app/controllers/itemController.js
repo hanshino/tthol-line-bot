@@ -333,9 +333,13 @@ async function isFilter(context) {
 async function equipCompare(context, props) {
   const { equipA, equipB } = props.match.groups;
   const { type } = props;
+  // 泛用 `裝備比較`/`compare` 沒有指定分類（drivercompare/backcompare 才會帶 type），
+  // 若不限制搜尋範圍，同名寵物/道具（如「暴龍」同時是座騎與寵物名稱）會混入結果
+  // 造成「多個結果」誤判，故預設限制在裝備分類內。
+  const searchType = type || EQUIP_TYPES;
 
-  let a = await itemService.getByName([equipA], { type, excludeSkin: true });
-  let b = await itemService.getByName([equipB], { type, excludeSkin: true });
+  let a = await itemService.getByName([equipA], { type: searchType, excludeSkin: true });
+  let b = await itemService.getByName([equipB], { type: searchType, excludeSkin: true });
 
   if (a.length === 0) {
     return context.replyText(`錯誤： \`${equipA}\` 查無結果`);
