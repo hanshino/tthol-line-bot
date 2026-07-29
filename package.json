@@ -12,6 +12,7 @@
     "axios": "^1.11.0",
     "bottender": "1.5.5",
     "express": "^4.21.2",
+    "googleapis": "173",
     "i18n": "^0.15.1",
     "knex": "^3.1.0",
     "memory-cache": "^0.2.0",
