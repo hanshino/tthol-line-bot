@@ -34,11 +34,20 @@ _sync-line:
 	TOKEN=$$(grep '^LINE_ACCESS_TOKEN=' .env | cut -d'=' -f2-) && \
 	if [ -z "$$TOKEN" ]; then echo "❌ LINE_ACCESS_TOKEN not found in .env"; exit 1; fi && \
 	WEBHOOK_URL="$(URL)/webhooks/line" && \
-	curl -s -X PUT https://api.line.me/v2/bot/channel/webhook/endpoint \
+	HTTP_STATUS=$$(curl -s -o /tmp/line-webhook-sync.log -w '%{http_code}' -X PUT https://api.line.me/v2/bot/channel/webhook/endpoint \
 		-H "Authorization: Bearer $$TOKEN" \
 		-H "Content-Type: application/json" \
-		-d "{\"endpoint\": \"$$WEBHOOK_URL\"}" > /dev/null && \
-	echo "✅ Webhook: $$WEBHOOK_URL"
+		-d "{\"endpoint\": \"$$WEBHOOK_URL\"}") && \
+	if [ "$$HTTP_STATUS" != "200" ]; then \
+		echo "❌ LINE API rejected webhook update (HTTP $$HTTP_STATUS): $$(cat /tmp/line-webhook-sync.log)"; \
+		exit 1; \
+	fi && \
+	ACTUAL=$$(curl -s https://api.line.me/v2/bot/channel/webhook/endpoint -H "Authorization: Bearer $$TOKEN" | python3 -c 'import json,sys;print(json.load(sys.stdin)["endpoint"])') && \
+	if [ "$$ACTUAL" != "$$WEBHOOK_URL" ]; then \
+		echo "❌ Verification mismatch: set $$WEBHOOK_URL but LINE reports $$ACTUAL"; \
+		exit 1; \
+	fi && \
+	echo "✅ Webhook verified: $$WEBHOOK_URL"
 
 get-webhook: ## 查詢目前 LINE webhook 設定
 	@TOKEN=$$(grep '^LINE_ACCESS_TOKEN=' .env | cut -d'=' -f2-) && \
