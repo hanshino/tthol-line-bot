@@ -7,6 +7,7 @@ const routes = [
   ...require("./app/controllers/magicController").routes,
   ...require("./app/controllers/itemController").routes,
   ...require("./app/controllers/advanceController").routes,
+  ...require("./app/controllers/achievementController").routes,
   route("*", fallback),
 ];
 
