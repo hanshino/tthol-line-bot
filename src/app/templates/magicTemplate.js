@@ -97,17 +97,28 @@ function header(title, badge, subtitle, big) {
             wrap: true,
           },
           {
-            type: "text",
-            text: badge,
-            color: COLORS.card,
-            size: "sm",
-            weight: "bold",
+            // LINE Flex 只允許 backgroundColor/cornerRadius/padding 出現在 box，
+            // text 元件不支援這些欄位（曾造成 LINE API 400 unknown field）。
+            // 徽章一律用 box 包一層 text，比照 itemTemplate.js 的 typeBadge()。
+            type: "box",
+            layout: "vertical",
             backgroundColor: "#c85c57",
             cornerRadius: "20px",
-            paddingAll: "5px",
+            paddingTop: "5px",
+            paddingBottom: "5px",
             paddingStart: "10px",
             paddingEnd: "10px",
             flex: 0,
+            contents: [
+              {
+                type: "text",
+                text: badge,
+                color: COLORS.card,
+                size: "sm",
+                weight: "bold",
+                align: "center",
+              },
+            ],
           },
         ],
       },
