@@ -204,11 +204,12 @@ exports.genMagicBubble = (magic, basicRows, statRows) => ({
       [
         section("基本資料"),
         {
+          // 不套 border+cornerRadius 的圓角外框：LINE Flex 沒有 overflow/clip 屬性，
+          // 子層 genAttributeRow 各自有方形底色（交替列），會在圓角處露出方角，
+          // 比照 itemTemplate.js genStatsBubble / monsterTemplate.js genAttributeBubble
+          // 的既有作法，交替列直接貼邊、不包圓角框。
           type: "box",
           layout: "vertical",
-          borderColor: COLORS.border,
-          borderWidth: "1px",
-          cornerRadius: "12px",
           margin: "sm",
           paddingStart: "15px",
           paddingEnd: "15px",
@@ -220,9 +221,6 @@ exports.genMagicBubble = (magic, basicRows, statRows) => ({
         {
           type: "box",
           layout: "vertical",
-          borderColor: COLORS.border,
-          borderWidth: "1px",
-          cornerRadius: "12px",
           margin: "sm",
           paddingStart: "15px",
           paddingEnd: "15px",
