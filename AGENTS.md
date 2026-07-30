@@ -39,3 +39,49 @@ Code style/conventions for this repo. For commands, architecture, and test gotch
   `type_name = ORNAMENT`). Extend these maps, don't add parallel type-detection logic elsewhere.
 - `TTHOL_DATABASE` env var is a bare filename, not a path — `src/utils/sqlite.js` resolves it under
   `storage/`. This is intentional (matches the prod Docker volume mount); don't "fix" it into a path.
+
+## LINE Flex Message design rules (learned the hard way — don't re-break these)
+
+Structural JSON validity (`JSON.stringify` succeeds, jest passes) does **not** mean LINE will accept
+the message. The only real check is POSTing to LINE's `/v2/bot/message/validate/reply` endpoint with
+the real `.env` `LINE_ACCESS_TOKEN`. Treat that as mandatory verification for any Flex template change,
+not just eslint+jest.
+
+Invalid properties that look plausible but will 400 at runtime:
+- `text` components **cannot** have `backgroundColor`, `cornerRadius`, or any `padding*` — those are
+  `box`-only. Want a badge/pill look? Wrap the `text` in a `box` (see `itemTemplate.js`'s `typeBadge()`).
+- No `overflow` property exists at all in Flex.
+- No `minHeight` — use `height`.
+- No bare `padding` shorthand — use `paddingAll`.
+- No directional `margin` variants (`marginStart`/`marginEnd`/`marginBottom` are all invalid) — `margin`
+  is directionless. Only `padding` has directional variants (`paddingTop/Bottom/Start/End`).
+- No `borderStartWidth`/`borderStartColor` — fake an accent bar with a small nested `box` that has its
+  own `width`/`backgroundColor`.
+
+**Flex has no child-clipping.** A parent `box` with `border*`/`cornerRadius` does NOT clip a child
+`box`'s own square `backgroundColor` — the child's square corners visibly poke out past the parent's
+rounded border. This bites alternating-row/striped lists specifically. Convention: don't wrap
+alternating-color row lists in a bordered+`cornerRadius` container at all — let rows sit directly on
+the section's padding instead (reference: `itemTemplate.js`'s `genStatsBubble`, `monsterTemplate.js`'s
+`genAttributeBubble`, `magicTemplate.js`'s `genMagicBubble`).
+
+## Wuxia Flex palette
+
+Reused across `itemTemplate.js` / `monsterTemplate.js` / `magicTemplate.js` / `advanceTemplate.js`.
+Each file defines its own local `COLORS` object (deliberate — no shared import) with the same values:
+
+| name | hex | use |
+|---|---|---|
+| primary/cinnabar | `#b6322d` | headers, primary accents |
+| background | `#f9f6f1` | bubble/page background |
+| card | `#fcfaf6` | card surfaces |
+| ink | `#171b22` | primary text |
+| muted | `#585e68` | secondary text |
+| border | `#dbd7cf` | dividers, outlines |
+| celadon | `#54967a` | secondary accent |
+| indigo | `#2c6194` | secondary accent |
+| plum | `#744c7d` | secondary accent |
+
+When adding a new Flex template, copy this palette locally rather than importing a shared module
+(matches existing convention), and treat the child-clipping rule above as load-bearing for any
+striped/alternating-row layout.
