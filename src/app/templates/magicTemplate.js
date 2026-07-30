@@ -56,6 +56,8 @@ function section(label, tag, accent) {
     layout: "horizontal",
     alignItems: "center",
     margin: "lg",
+    paddingStart: "15px",
+    paddingEnd: "15px",
     contents: [
       {
         type: "box",
@@ -192,6 +194,8 @@ exports.genMagicBubble = (magic, basicRows, statRows) => ({
           cornerRadius: "12px",
           margin: "sm",
           paddingAll: "12px",
+          paddingStart: "15px",
+          paddingEnd: "15px",
           contents: [
             { type: "text", text: `${magic.help}`, color: COLORS.ink, size: "sm", wrap: true },
           ],
@@ -205,6 +209,9 @@ exports.genMagicBubble = (magic, basicRows, statRows) => ({
           borderColor: COLORS.border,
           borderWidth: "1px",
           cornerRadius: "12px",
+          margin: "sm",
+          paddingStart: "15px",
+          paddingEnd: "15px",
           contents: basicRows,
         },
       ],
@@ -216,6 +223,9 @@ exports.genMagicBubble = (magic, basicRows, statRows) => ({
           borderColor: COLORS.border,
           borderWidth: "1px",
           cornerRadius: "12px",
+          margin: "sm",
+          paddingStart: "15px",
+          paddingEnd: "15px",
           contents: statRows,
         },
       ],
