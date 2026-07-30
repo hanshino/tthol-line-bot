@@ -205,7 +205,6 @@ exports.genMagicBubble = (magic, basicRows, statRows) => ({
           borderColor: COLORS.border,
           borderWidth: "1px",
           cornerRadius: "12px",
-          overflow: "hidden",
           contents: basicRows,
         },
       ],
@@ -217,7 +216,6 @@ exports.genMagicBubble = (magic, basicRows, statRows) => ({
           borderColor: COLORS.border,
           borderWidth: "1px",
           cornerRadius: "12px",
-          overflow: "hidden",
           contents: statRows,
         },
       ],
@@ -235,7 +233,7 @@ function selectChip(data) {
     alignItems: "center",
     spacing: "sm",
     flex: 1,
-    minHeight: "46px",
+    height: "46px",
     paddingAll: "8px",
     backgroundColor: COLORS.background,
     borderColor: COLORS.border,
@@ -366,7 +364,7 @@ exports.genSelectBubble = (name, id, maxLevel, currentLevel) => {
           type: "box",
           layout: "horizontal",
           spacing: "sm",
-          padding: "15px",
+          paddingAll: "15px",
           contents: [
             { type: "text", text: "目前檢視", color: COLORS.muted, size: "xxs", flex: 0 },
             {

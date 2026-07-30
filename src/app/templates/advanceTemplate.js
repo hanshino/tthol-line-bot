@@ -41,8 +41,6 @@ exports.genSkillBox = name => ({
   backgroundColor: COLORS.card,
   borderColor: COLORS.border,
   borderWidth: "1px",
-  borderStartWidth: "3px",
-  borderStartColor: COLORS.plum,
   cornerRadius: "11px",
   paddingAll: "11px",
   contents: [
@@ -50,8 +48,17 @@ exports.genSkillBox = name => ({
       type: "box",
       layout: "horizontal",
       alignItems: "center",
-      marginBottom: "8px",
+      margin: "md",
       contents: [
+        {
+          type: "box",
+          layout: "vertical",
+          width: "3px",
+          height: "14px",
+          backgroundColor: COLORS.plum,
+          cornerRadius: "2px",
+          contents: [],
+        },
         {
           type: "box",
           layout: "vertical",
@@ -132,7 +139,7 @@ exports.genAdvancedBubble = (title, boxes) => ({
             type: "box",
             layout: "horizontal",
             alignItems: "center",
-            marginBottom: "9px",
+            margin: "md",
             contents: [
               {
                 type: "box",
