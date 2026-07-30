@@ -63,7 +63,7 @@ function godRow(contents) {
  */
 exports.genGodQuestBubble = numbers => ({
   type: "bubble",
-  size: "micro",
+  size: "kilo",
   body: {
     type: "box",
     layout: "vertical",
