@@ -5,8 +5,9 @@ const magicTemplate = require("../templates/magicTemplate");
 let skillRegex = /^.(skill|技能)\s(?<id>\d+)(\s(?<level>\d+))?/;
 // 數值參數只挑這幾個乾淨欄位（比照 mockup），避免 break_prob/group/order/status_prob 等
 // 內部除錯欄位（locale 裡沒有真中文翻譯，只是把英文欄名原樣複製一份）混進來顯示。
-const STAT_KEYS = ["range", "spend_mp", "stun", "time", "func_dmg", "func_hit"];
+const STAT_KEYS = ["range", "spend_mp", "stun", "time", "func_dmg", "func_hit_p1"];
 exports.routes = [text(skillRegex, showSkill), text(/^\.?(skill|技能)\s/, searchSkill)];
+exports.showSkill = showSkill;
 
 /**
  * 技能搜尋
@@ -65,13 +66,15 @@ async function showSkill(context, props) {
         key === "pk_disable" && magic[key] ? "#b6322d" : undefined
       )
     );
-  const statRows = STAT_KEYS.filter(key => magic[key] !== undefined && magic[key] !== null).map(
+  const statRows = STAT_KEYS.filter(
     key =>
-      magicTemplate.genAttributeRow(
-        i18n.__("magic." + key),
-        magic[key],
-        magicTemplate.valueColor(key)
-      )
+      magic[key] !== undefined && magic[key] !== null && (key !== "func_hit_p1" || magic[key] !== 0)
+  ).map(key =>
+    magicTemplate.genAttributeRow(
+      key === "func_hit_p1" ? "命中率" : i18n.__("magic." + key),
+      key === "func_hit_p1" ? `${magic[key]}%` : magic[key],
+      magicTemplate.valueColor(key)
+    )
   );
   let bubbles = [magicTemplate.genMagicBubble(magic, basicRows, statRows)];
   let max = await magicService.getMaxLevelById(id);
