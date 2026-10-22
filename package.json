@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@line/bot-sdk": "^11",
-    "express": "^4.21.2",
+    "express": "^4.22.3",
     "googleapis": "173",
     "i18n": "^0.15.1",
     "knex": "^3.1.0",
