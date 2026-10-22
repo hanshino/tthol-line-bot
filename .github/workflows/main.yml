@@ -19,7 +19,7 @@ jobs:
         with:
           node-version: "24"
           cache: yarn
-      - run: yarn install --frozen-lockfile
+      - run: yarn install --frozen-lockfile --ignore-scripts
       - run: yarn lint
       # test/ holds standalone scripts (zero jest tests), so only run src/. Models need the env var at require time.
       - run: npx jest src
