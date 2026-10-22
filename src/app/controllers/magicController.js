@@ -1,4 +1,4 @@
-const { text } = require("bottender/router");
+const { text } = require("../../lib/bot");
 const magicService = require("../services/magicService");
 const i18n = require("../../utils/i18n");
 const magicTemplate = require("../templates/magicTemplate");
@@ -11,7 +11,7 @@ exports.showSkill = showSkill;
 
 /**
  * 技能搜尋
- * @param {import("bottender").LineContext} context
+ * @param {import("../../lib/bot/context").LineContext} context
  */
 async function searchSkill(context) {
   const params = context.event.message.text.split(/\s+/g);

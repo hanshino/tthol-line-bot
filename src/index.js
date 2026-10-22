@@ -1,4 +1,4 @@
-const { router, route } = require("bottender/router");
+const { router, route } = require("./lib/bot");
 const routes = [
   ...require("./app/controllers/templateController").routes,
   ...require("./app/controllers/manualController").routes,

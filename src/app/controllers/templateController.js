@@ -1,4 +1,4 @@
-const { text } = require("bottender/router");
+const { text } = require("../../lib/bot");
 const rebornTemplate = require("../templates/rebornTemplate");
 const rules = [
   {

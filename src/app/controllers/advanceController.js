@@ -1,5 +1,5 @@
 const advanceConfig = require("../../configs/advance.config");
-const { route } = require("bottender/router");
+const { route } = require("../../lib/bot");
 const itemService = require("../services/itemService");
 const advanceTemplate = require("../templates/advanceTemplate");
 

@@ -1,4 +1,4 @@
-const { text } = require("bottender/router");
+const { text } = require("../../lib/bot");
 const monsterService = require("../services/monsterService");
 const itemService = require("../services/itemService");
 const monsterTemplate = require("../templates/monsterTemplate");
@@ -126,8 +126,8 @@ async function showResult(context, target) {
 
 /**
  * 查找怪物
- * @param {import("bottender").LineContext} context
- * @param {import("bottender").Props} props
+ * @param {import("../../lib/bot/context").LineContext} context
+ * @param {{ match: RegExpExecArray }} props
  */
 async function searchMonster(context, props) {
   const { monster } = props.match.groups;
@@ -146,7 +146,7 @@ async function searchMonster(context, props) {
 
 /**
  * 傳送查詢結果
- * @param {import("bottender").LineContext} context
+ * @param {import("../../lib/bot/context").LineContext} context
  * @param {Array} monsters
  */
 async function showMultiResult(context, monsters) {

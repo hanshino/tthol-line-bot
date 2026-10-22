@@ -1,5 +1,5 @@
 const i18n = require("../../utils/i18n");
-const { text, route } = require("bottender/router");
+const { text, route } = require("../../lib/bot");
 const itemService = require("../services/itemService");
 const itemRandService = require("../services/itemRandService");
 const monsterService = require("../services/monsterService");
@@ -108,8 +108,8 @@ async function searchItemId(context, props) {
 /**
  * 物品查詢
  *
- * @param {import("bottender").LineContext} context
- * @param {import("bottender").Props} props
+ * @param {import("../../lib/bot/context").LineContext} context
+ * @param {{ match: RegExpExecArray }} props
  */
 async function searchItem(context, props) {
   const params = context.event.message.text.split(/\s+/g);
@@ -175,7 +175,7 @@ function classify(items) {
 
 /**
  * 一般物品的顯示
- * @param {import("bottender").LineContext} context
+ * @param {import("../../lib/bot/context").LineContext} context
  * @param {Object} item
  */
 async function showItem(context, item) {
@@ -217,7 +217,7 @@ async function showItem(context, item) {
 
 /**
  * 裝備有圖片的話，進行`flex`顯示
- * @param {import("bottender").LineContext} context
+ * @param {import("../../lib/bot/context").LineContext} context
  * @param {Object} target
  */
 async function showMedia(context, target) {
@@ -327,8 +327,8 @@ async function isFilter(context) {
 
 /**
  * 裝備比較
- * @param {import("bottender").LineContext} context
- * @param {import("bottender").Props} props
+ * @param {import("../../lib/bot/context").LineContext} context
+ * @param {{ match: RegExpExecArray }} props
  */
 async function equipCompare(context, props) {
   const { equipA, equipB } = props.match.groups;
@@ -474,8 +474,8 @@ async function getSheetPicture(target) {
 
 /**
  * 顯示加權排行榜
- * @param {import("bottender").LineContext} context
- * @param {import("bottender").Props} props
+ * @param {import("../../lib/bot/context").LineContext} context
+ * @param {{ match: RegExpExecArray }} props
  */
 async function showRanking(context, props) {
   let { type } = props;
@@ -534,7 +534,7 @@ async function showRanking(context, props) {
 
 /**
  * 看看是否為別名指令
- * @param {import("bottender").LineContext} context
+ * @param {import("../../lib/bot/context").LineContext} context
  */
 function isAlias(context) {
   if (!context.event.isText) return false;
