@@ -1,6 +1,7 @@
 const { text } = require("../../lib/bot");
 const monsterService = require("../services/monsterService");
 const itemService = require("../services/itemService");
+const { fitCarousel } = require("../../utils/flex");
 const monsterTemplate = require("../templates/monsterTemplate");
 const i18n = require("../../utils/i18n");
 
@@ -159,12 +160,10 @@ async function showMultiResult(context, monsters) {
     bubbles.push(monsterTemplate.genMonsterBubble(rows.slice(i, i + 10)));
   }
 
-  context.replyFlex("查詢結果", {
-    type: "carousel",
-    contents: bubbles.slice(0, 12),
-  });
+  const { carousel, shown } = fitCarousel(bubbles);
+  context.replyFlex("查詢結果", carousel);
 
-  if (bubbles.length > 12) {
+  if (bubbles.length > shown) {
     context.replyText("還有剩餘結果未顯示，如未在上列，請縮小搜尋範圍");
   }
 }

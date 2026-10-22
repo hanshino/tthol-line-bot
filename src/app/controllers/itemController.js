@@ -1,5 +1,6 @@
 const i18n = require("../../utils/i18n");
 const { text, route } = require("../../lib/bot");
+const { fitCarousel } = require("../../utils/flex");
 const itemService = require("../services/itemService");
 const itemRandService = require("../services/itemRandService");
 const monsterService = require("../services/monsterService");
@@ -149,11 +150,12 @@ async function showSearchResult(context, items) {
     }
   });
 
-  for (let i = 0; i < bubbles.length; i += 10) {
-    context.replyFlex("物品查詢結果", {
-      type: "carousel",
-      contents: bubbles.slice(i, i + 10),
-    });
+  // One carousel only: LINE allows 5 messages per reply and 50 KB per carousel.
+  const { carousel, shown } = fitCarousel(bubbles);
+  context.replyFlex("物品查詢結果", carousel);
+
+  if (bubbles.length > shown) {
+    context.replyText("還有剩餘結果未顯示，請增加關鍵字縮小範圍\n例如：物品 極 重擊 赤");
   }
 }
 
