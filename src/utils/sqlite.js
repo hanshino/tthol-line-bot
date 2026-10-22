@@ -7,7 +7,7 @@ const path = require("path");
  */
 function generate(filename) {
   return knex({
-    client: "sqlite3",
+    client: "better-sqlite3",
     connection: {
       filename: path.resolve(__dirname, "../../", "storage", filename),
     },

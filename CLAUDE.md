@@ -37,7 +37,8 @@ Two independent reasons, both verified:
    zero tests under jest.
 
 So:
-- Run the real Jest suite: `TTHOL_DATABASE=dummy.sqlite yarn test src/`.
+- Run the real Jest suite: `TTHOL_DATABASE=dummy.sqlite yarn test src/`. CI (`.github/workflows/main.yml`)
+  runs exactly this plus `yarn lint` on every PR and gates the master image build on it.
 - Run a `test/` script directly: `node test/rateNormalization.test.js` (pure logic, no DB).
 
 ## Architecture

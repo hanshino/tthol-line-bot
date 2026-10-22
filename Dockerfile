@@ -11,7 +11,8 @@ WORKDIR /application
 COPY package.json ./
 COPY yarn.lock ./
 
-RUN yarn install --frozen-lockfile --production
+# better-sqlite3 ships prebuilt binaries; yarn v1 would otherwise run node-gyp because of binding.gyp
+RUN yarn install --frozen-lockfile --production --ignore-scripts
 
 ENV NODE_ENV=production
 
