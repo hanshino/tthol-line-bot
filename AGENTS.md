@@ -18,8 +18,8 @@ Code style/conventions for this repo. For commands, architecture, and test gotch
 
 ## Adding a controller/route
 
-- A controller module must `exports.routes = [...]` (array of Bottender `text(regex, handler)` /
-  `route(predicate, handler)` entries) and get spread into `src/index.js`'s `routes` array.
+- A controller module must `exports.routes = [...]` (array of `text(regex, handler)` /
+  `route(predicate, handler)` entries from `src/lib/bot`, the in-house Bottender-compatible router) and get spread into `src/index.js`'s `routes` array.
 - **First matching route wins** — order in `src/index.js` (and within a controller's own array) is
   significant. Config-driven controllers (`manualController`, `advanceController`) map
   `src/configs/*.config.js` entries 1:1 to routes; add new canned replies there, not as new code.

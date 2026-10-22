@@ -42,14 +42,16 @@ So:
 
 ## Architecture
 
-**Stack:** Bottender (bot/routing) on top of Express, Knex over SQLite, plus a Google-Sheets
-data source. Entry: `server.js` (Express wrapper, loads `.env` when not production, mounts the
-Bottender handler at `/webhooks/line`) → `index.js` → `src/index.js`, whose default export
-`App(context)` builds the router on every event.
+**Stack:** Express + `@line/bot-sdk` with a small in-house Bottender-compatible layer in
+`src/lib/bot/` (router / context / webhook, ported from redive_linebot; no session/state),
+Knex over SQLite, plus a Google-Sheets data source. Entry: `server.js` (loads `.env` when not
+production, mounts the signed LINE webhook at `/webhooks/line`) → `src/index.js`, whose default
+export `App(context)` builds the router on every event. Replies are batched and sent once after
+the handler finishes (`LineContext.handlerDidEnd`); the webhook ACKs 200 before processing.
 
 **Command routing** (`src/index.js`): each controller exports a `routes` array; `src/index.js`
 spreads them all in order, then appends `route("*", fallback)`. **First match wins**, so
-controller/route order is significant. Routes are Bottender `text(regex, handler)` or
+controller/route order is significant. Routes are `text(regex, handler)` (text events only) or
 `route(predicate, handler)` entries; handlers read `context.event.message.text` and reply with
 `context.replyText` / `context.replyFlex`.
 

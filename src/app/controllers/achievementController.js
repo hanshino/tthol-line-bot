@@ -1,4 +1,4 @@
-const { text } = require("bottender/router");
+const { text } = require("../../lib/bot");
 const achievementService = require("../services/achievementService");
 const achievementTemplate = require("../templates/achievementTemplate");
 
